@@ -48,9 +48,12 @@ function extractFolderId(link) {
 // ROUTE FRONTEND (Menampilkan Halaman Web)
 // ==========================================
 // Menjadi lebih kuat seperti ini:
+// Route Utama untuk Halaman Klien
 app.get('/', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'client.html'));
 });
+
+// Route untuk Halaman Admin
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'admin.html'));
 });
