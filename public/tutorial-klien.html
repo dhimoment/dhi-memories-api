@@ -1,419 +1,935 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panduan Klien – Dhi Memories</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Lengkap Klien — Dhi Memories</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 
-        :root {
-            --bg: #09101f;
-            --surface: #111827;
-            --surface2: #1e2d45;
-            --brand: #3b82f6;
-            --brand-light: #93c5fd;
-            --accent: #10b981;
-            --warn: #f59e0b;
-            --text: #e2e8f0;
-            --muted: #64748b;
-            --border: rgba(59,130,246,0.15);
-        }
+:root{
+  --bg:#07060a;
+  --surface:#111018;
+  --surface2:#1a1824;
+  --surface3:#221f30;
+  --gold:#c9a96e;
+  --gold-light:#e8d5b0;
+  --gold-dim:#8a6e45;
+  --gold-glow:rgba(201,169,110,.12);
+  --emerald:#4ade80;
+  --red:#f87171;
+  --border:rgba(201,169,110,.12);
+  --border2:rgba(255,255,255,.06);
+  --text:#f0ebe3;
+  --muted:#7a7068;
+  --muted2:#504840;
+}
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 300;
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.75;
+  overflow-x:hidden;
+}
 
-        /* ── noise texture overlay ── */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-            pointer-events: none; z-index: 0; opacity: .4;
-        }
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.35;
+}
 
-        /* ── glow blobs ── */
-        .blob { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
-        .blob-1 { width: 500px; height: 500px; background: rgba(59,130,246,.12); top: -100px; left: -150px; }
-        .blob-2 { width: 400px; height: 400px; background: rgba(16,185,129,.08); bottom: 10%; right: -100px; }
+/* ── decorative orbs ── */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.orb-a{width:600px;height:600px;background:rgba(201,169,110,.05);top:-200px;right:-100px;}
+.orb-b{width:400px;height:400px;background:rgba(74,222,128,.04);bottom:5%;left:-100px;}
 
-        /* ── layout ── */
-        .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+/* ── layout ── */
+.page{max-width:820px;margin:0 auto;padding:0 28px;position:relative;z-index:1;}
 
-        /* ── hero ── */
-        header {
-            padding: 72px 0 48px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-        }
+/* ── HERO ── */
+header{
+  padding:80px 0 56px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
 
-        .brand-pill {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(59,130,246,.1); border: 1px solid var(--border);
-            color: var(--brand-light); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
-            padding: 6px 16px; border-radius: 999px; margin-bottom: 24px;
-        }
-        .brand-pill span { width: 6px; height: 6px; background: var(--brand); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+.brand-mark{display:flex;flex-direction:column;align-items:center;gap:0;line-height:1;margin-bottom:36px;}
+.brand-mark .dhi{font-family:'Playfair Display',serif;font-size:3rem;font-weight:400;letter-spacing:.15em;color:var(--text);}
+.brand-mark .divider-line{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:8px 0 7px;}
+.brand-mark .memories{font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:400;letter-spacing:.55em;color:var(--gold);text-transform:uppercase;}
 
-        @keyframes pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.4; transform:scale(.7)} }
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,169,110,.06);border:1px solid var(--border);
+  color:var(--gold-dim);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  padding:5px 14px;border-radius:2px;margin-bottom:20px;
+}
+.hero-badge .dot{width:5px;height:5px;background:var(--gold);border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 700;
-            line-height: 1.2;
-            letter-spacing: -.01em;
-        }
-        h1 em { font-style: normal; color: var(--brand); }
+h1{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4.5vw,2.8rem);font-weight:700;line-height:1.2;letter-spacing:-.01em;}
+h1 em{font-style:italic;color:var(--gold);}
 
-        .subtitle { color: var(--muted); font-size: 16px; margin-top: 12px; max-width: 480px; margin-left: auto; margin-right: auto; }
+.hero-sub{color:var(--muted);font-size:15px;margin-top:14px;max-width:480px;margin-left:auto;margin-right:auto;}
 
-        /* ── step section ── */
-        .steps { padding: 60px 0; }
+/* ── TABLE OF CONTENTS ── */
+.toc{
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  padding:24px 28px;margin:48px 0;
+}
+.toc-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold-light);margin-bottom:14px;letter-spacing:.05em;}
+.toc-list{list-style:none;}
+.toc-list li{padding:6px 0;border-bottom:1px solid var(--border2);}
+.toc-list li:last-child{border-bottom:none;}
+.toc-list a{
+  color:var(--muted);font-size:13px;letter-spacing:.06em;text-decoration:none;
+  display:flex;align-items:center;gap:10px;transition:color .2s;
+}
+.toc-list a:hover{color:var(--gold-light);}
+.toc-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-dim);width:20px;flex-shrink:0;}
 
-        .step-group { margin-bottom: 56px; }
+/* ── SECTIONS ── */
+.section{padding:60px 0 20px;}
 
-        .step-label {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 20px;
-        }
+/* ── step header ── */
+.step-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+.step-num{
+  width:44px;height:44px;flex-shrink:0;
+  background:var(--surface2);border:1px solid var(--border);
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;
+  color:var(--gold);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.step-num::after{content:'';position:absolute;inset:-1px;border-radius:3px;box-shadow:0 0 20px rgba(201,169,110,.15);}
+.step-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;}
+.step-body{padding-left:60px;}
+.step-body p{color:#a09890;margin-bottom:16px;font-size:15px;}
 
-        .step-num {
-            width: 40px; height: 40px; flex-shrink: 0;
-            background: var(--brand); color: #fff;
-            border-radius: 12px;
-            font-family: 'Playfair Display', serif;
-            font-size: 18px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(59,130,246,.4);
-        }
+/* ── SECTION DIVIDER ── */
+.section-divider{
+  display:flex;align-items:center;gap:16px;
+  padding:40px 0;color:var(--muted2);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
-        .step-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            font-weight: 700;
-        }
+/* ── MOCK BROWSER ── */
+.mock-browser{
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  overflow:hidden;margin:20px 0;box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.mock-topbar{
+  background:var(--surface2);padding:10px 16px;
+  display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);
+}
+.mock-dot{width:9px;height:9px;border-radius:50%;}
+.md-r{background:#ef4444;}.md-y{background:#eab308;}.md-g{background:#22c55e;}
+.mock-url{
+  margin-left:8px;flex:1;
+  background:rgba(0,0,0,.3);border:1px solid var(--border2);
+  border-radius:4px;padding:3px 12px;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+}
+.mock-content{padding:28px 24px;}
 
-        .step-body { padding-left: 54px; }
+/* ── PIN CARD MOCK ── */
+.pin-card-mock{
+  max-width:360px;margin:0 auto;text-align:center;
+  background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+  padding:36px 28px;position:relative;
+}
+.pin-card-mock::before,.pin-card-mock::after{
+  content:'';position:absolute;width:16px;height:16px;border-color:var(--gold-dim);border-style:solid;
+}
+.pin-card-mock::before{top:-1px;left:-1px;border-width:1px 0 0 1px;}
+.pin-card-mock::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0;}
 
-        .step-body p { color: #94a3b8; margin-bottom: 16px; }
+.m-brand{margin-bottom:24px;}
+.m-brand .m-dhi{font-family:'Playfair Display',serif;font-size:2.2rem;letter-spacing:.12em;}
+.m-brand .m-sep{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:6px 0 5px;}
+.m-brand .m-mem{font-size:.58rem;letter-spacing:.5em;color:var(--gold);text-transform:uppercase;}
 
-        /* ── mock UI cards ── */
-        .mock {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            margin-top: 20px;
-            box-shadow: 0 12px 48px rgba(0,0,0,.5);
-        }
+.m-label{font-size:.7rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.m-desc{font-size:.8rem;color:var(--muted);margin-bottom:20px;}
 
-        .mock-bar {
-            background: var(--surface2);
-            padding: 10px 16px;
-            display: flex; align-items: center; gap: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-        .mock-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot-r { background: #ef4444; }
-        .dot-y { background: #eab308; }
-        .dot-g { background: #22c55e; }
-        .mock-bar .url { font-size: 11px; color: var(--muted); margin-left: 8px; background: rgba(255,255,255,.05); padding: 3px 10px; border-radius: 6px; }
+.m-input{
+  width:100%;background:var(--bg);border:1px solid var(--gold-dim);border-radius:3px;
+  padding:.9rem 1.2rem;font-size:1.4rem;letter-spacing:.5em;text-align:center;
+  color:var(--gold-light);font-family:'DM Mono',monospace;
+  box-shadow:0 0 0 3px rgba(201,169,110,.08);
+}
+.m-input.idle{border-color:var(--border2);color:var(--muted2);letter-spacing:.4em;font-size:1rem;}
 
-        .mock-body { padding: 24px; }
+.m-btn{
+  width:100%;margin-top:14px;padding:.85rem;
+  background:transparent;border:1px solid var(--gold-dim);border-radius:3px;
+  color:var(--gold-light);font-size:.75rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+}
+.m-btn.loading{opacity:.5;}
+.m-err{font-size:.78rem;color:var(--red);margin-top:8px;display:flex;align-items:center;gap:6px;}
 
-        /* Login form mock */
-        .mock-form { max-width: 340px; margin: 0 auto; }
-        .mock-form h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; text-align: center; margin-bottom: 4px; }
-        .mock-form p { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 20px; }
+/* ── GALLERY HEADER MOCK ── */
+.m-gallery-header{
+  background:rgba(10,9,8,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.m-header-left{display:flex;align-items:center;gap:12px;}
+.m-logo{font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:.08em;}
+.m-logo span{color:var(--gold);font-style:italic;}
+.m-project{font-size:.68rem;letter-spacing:.12em;color:var(--muted);border-left:1px solid var(--border);padding-left:12px;}
+.m-counter{
+  padding:.35rem .9rem;background:var(--surface2);border:1px solid var(--border);
+  border-radius:2px;font-size:.75rem;letter-spacing:.1em;
+}
+.m-counter.full{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.3);color:var(--emerald);}
 
-        .mock-input {
-            width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 14px; color: var(--text);
-            font-size: 14px; font-family: 'DM Sans', sans-serif; margin-bottom: 12px;
-            outline: none;
-        }
-        .mock-input.highlight { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
+/* ── INFO BAR ── */
+.m-info-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:.7rem 1rem;margin:12px 0;
+  background:rgba(201,169,110,.04);border:1px solid rgba(201,169,110,.15);
+  border-radius:3px;font-size:.75rem;letter-spacing:.05em;color:var(--gold-dim);
+}
 
-        .mock-btn {
-            width: 100%; background: var(--brand); color: #fff; border: none;
-            border-radius: 10px; padding: 13px; font-size: 14px;
-            font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;
-        }
+/* ── RESTORE BANNER ── */
+.m-restore{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:.7rem 1rem;margin-bottom:12px;
+  background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.2);
+  border-radius:3px;font-size:.75rem;color:var(--gold-light);
+}
+.m-restore-actions{display:flex;gap:6px;}
+.m-rbtn{padding:.3rem .8rem;background:var(--gold-dim);color:var(--bg);border:none;border-radius:2px;font-size:.7rem;font-weight:500;letter-spacing:.08em;cursor:pointer;}
+.m-dbtn{padding:.3rem .8rem;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;font-size:.7rem;cursor:pointer;}
 
-        /* Gallery mock */
-        .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        @media (max-width: 500px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
+/* ── PHOTO GRID MOCK ── */
+.m-photo-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  margin:12px 0;
+}
+@media(max-width:480px){.m-photo-grid{grid-template-columns:repeat(3,1fr);}}
 
-        .photo-thumb {
-            aspect-ratio: 3/2; border-radius: 8px; overflow: hidden; position: relative;
-            border: 2px solid transparent; cursor: pointer;
-            transition: border-color .2s;
-        }
-        .photo-thumb.sel { border-color: var(--accent); }
+.m-photo-card{
+  aspect-ratio:3/2;border-radius:3px;overflow:hidden;position:relative;
+  border:1px solid transparent;background:var(--surface3);
+}
+.m-photo-card.selected{border-color:var(--gold-dim);box-shadow:0 0 0 1px var(--gold-dim);}
+.m-photo-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.m-photo-badge{
+  position:absolute;top:5px;right:5px;
+  width:18px;height:18px;background:var(--gold-dim);
+  border-radius:50%;font-size:.6rem;color:var(--bg);font-weight:700;
+  display:none;align-items:center;justify-content:center;
+}
+.m-photo-card.selected .m-photo-badge{display:flex;}
 
-        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.m-card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(10,9,8,.85) 0%,transparent 50%);
+  display:flex;align-items:flex-start;justify-content:flex-end;padding:6px;
+}
+.m-card-btns{display:flex;gap:4px;}
+.m-card-btn{
+  padding:.25rem .55rem;
+  background:rgba(10,9,8,.7);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);border-radius:2px;
+  color:var(--text);font-size:.65rem;letter-spacing:.06em;
+}
+.m-card-btn.sel-btn{border-color:var(--gold-dim);color:var(--gold-light);background:rgba(201,169,110,.2);}
+.m-card-name{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:.4rem .5rem;font-size:.58rem;color:rgba(240,235,227,.6);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 
-        .check-badge {
-            display: none; position: absolute; top: 5px; right: 5px;
-            background: var(--accent); color: #fff; border-radius: 50%;
-            width: 20px; height: 20px; font-size: 11px; font-weight: 700;
-            align-items: center; justify-content: center;
-        }
-        .photo-thumb.sel .check-badge { display: flex; }
+/* ── BOTTOM BAR MOCK ── */
+.m-bottom-bar{
+  border-top:1px solid var(--border);padding:14px 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:rgba(10,9,8,.95);
+}
+.m-btn-review{
+  padding:.65rem 1.2rem;background:transparent;border:1px solid var(--border);
+  border-radius:3px;color:var(--muted);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+}
+.m-btn-send{
+  padding:.65rem 1.6rem;background:var(--gold-dim);border:1px solid var(--gold-dim);
+  border-radius:3px;color:var(--bg);font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+}
 
-        /* Counter bar */
-        .counter-bar {
-            background: var(--surface2); border-radius: 12px;
-            padding: 12px 16px; display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 16px;
-            border: 1px solid var(--border);
-        }
-        .counter-label { font-size: 13px; color: var(--muted); }
-        .counter-badge { background: var(--brand); color: #fff; border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 500; }
+/* ── LIGHTBOX MOCK ── */
+.m-lightbox{background:#000;border-radius:4px;overflow:hidden;margin:16px 0;}
+.m-lb-header{
+  padding:12px 16px;border-bottom:1px solid rgba(42,37,32,.8);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.m-lb-name{font-size:.75rem;color:var(--muted);letter-spacing:.06em;flex:1;}
+.m-lb-actions{display:flex;gap:6px;align-items:center;}
+.m-lb-sel{
+  padding:.4rem 1rem;background:rgba(201,169,110,.1);border:1px solid var(--gold-dim);
+  border-radius:2px;color:var(--gold-light);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+}
+.m-lb-sel.unsel{background:transparent;border-color:var(--border);color:var(--muted);}
+.m-lb-close{
+  width:28px;height:28px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;
+}
+.m-lb-body{position:relative;display:flex;align-items:center;justify-content:center;background:#050505;}
+.m-lb-img{width:100%;max-height:200px;object-fit:contain;padding:10px 48px;}
+.m-lb-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;background:rgba(20,17,14,.7);border:1px solid var(--border);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;
+}
+.m-lb-prev{left:8px;}.m-lb-next{right:8px;}
+.m-lb-footer{padding:10px;text-align:center;border-top:1px solid rgba(42,37,32,.8);}
+.m-lb-counter{font-size:.7rem;color:var(--muted);letter-spacing:.15em;}
+.m-lb-hint{font-size:.62rem;color:rgba(122,112,104,.4);letter-spacing:.08em;margin-top:3px;}
 
-        /* WA button mock */
-        .wa-btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            background: #25d366; color: #fff; border-radius: 12px;
-            padding: 14px 24px; font-weight: 500; font-size: 14px;
-            margin-top: 16px; cursor: pointer;
-        }
-        .wa-btn svg { width: 20px; height: 20px; }
+/* ── CART MODAL MOCK ── */
+.m-cart{background:var(--surface);border:1px solid var(--border);border-radius:4px 4px 0 0;margin:16px 0;}
+.m-cart-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.m-cart-title{font-family:'Playfair Display',serif;font-size:1.1rem;}
+.m-cart-sub{font-size:.7rem;color:var(--muted);letter-spacing:.08em;margin-top:2px;}
+.m-cart-item{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:3px;margin:8px 16px;
+}
+.m-cart-thumb{width:64px;height:42px;object-fit:cover;border-radius:2px;flex-shrink:0;}
+.m-cart-name{flex:1;font-size:.72rem;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.m-rm-btn{padding:.28rem .65rem;background:transparent;border:1px solid rgba(248,113,113,.2);border-radius:2px;color:var(--red);font-size:.68rem;letter-spacing:.06em;}
 
-        /* ── callout boxes ── */
-        .callout {
-            border-radius: 12px; padding: 16px 20px; margin: 20px 0 0 0;
-            display: flex; gap: 12px; font-size: 14px;
-        }
-        .callout-info { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.25); }
-        .callout-warn { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); }
-        .callout-success { background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.25); }
+/* ── TOAST MOCK ── */
+.m-toast{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:.5rem 1rem;border-radius:2px;font-size:.75rem;letter-spacing:.07em;
+  margin:10px 0;
+}
+.m-toast.gold{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);color:var(--gold-light);}
+.m-toast.warn{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.3);color:#fbbf24;}
+.m-toast.neutral{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
 
-        .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.6; }
-        .callout-text { color: #94a3b8; }
-        .callout-text strong { color: var(--text); }
+/* ── WA MSG MOCK ── */
+.m-wa-wrap{background:#0a1628;border-radius:8px;padding:16px;margin:16px 0;border:1px solid rgba(37,211,102,.2);}
+.m-wa-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);}
+.m-wa-header .wa-ic{width:32px;height:32px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.m-wa-header .wa-name{font-size:.8rem;font-weight:500;}
+.m-wa-header .wa-num{font-size:.68rem;color:rgba(255,255,255,.4);}
+.m-wa-bubble{
+  background:#1f2c34;border-radius:8px 8px 8px 2px;
+  padding:10px 14px;font-size:.78rem;line-height:1.7;
+  border:1px solid rgba(255,255,255,.04);
+}
+.m-wa-bubble strong{color:#fff;}
 
-        /* ── tip list ── */
-        .tip-list { list-style: none; margin-top: 12px; }
-        .tip-list li { padding: 10px 0; border-bottom: 1px solid var(--border); color: #94a3b8; font-size: 14px; display: flex; gap: 10px; }
-        .tip-list li:last-child { border-bottom: none; }
-        .tip-list li::before { content: attr(data-icon); font-size: 16px; }
+/* ── CALLOUT BOXES ── */
+.callout{border-radius:3px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;}
+.callout-info{background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.2);}
+.callout-warn{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.2);}
+.callout-good{background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.2);}
+.callout-err{background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.2);}
+.callout-icon{font-size:16px;flex-shrink:0;line-height:1.8;}
+.callout-text{color:#a09080;}
+.callout-text strong{color:var(--text);}
 
-        /* ── divider ── */
-        .divider { height: 1px; background: var(--border); margin: 40px 0; }
+/* ── KEYBOARD SHORTCUTS ── */
+.kbd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:16px 0;}
+.kbd-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:10px 14px;
+}
+.kbd{
+  padding:3px 8px;background:var(--surface);border:1px solid var(--border);
+  border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-light);
+  flex-shrink:0;
+}
+.kbd-desc{font-size:12px;color:var(--muted);letter-spacing:.04em;}
 
-        /* ── footer ── */
-        footer {
-            text-align: center; padding: 40px 0 60px;
-            color: var(--muted); font-size: 13px;
-            border-top: 1px solid var(--border);
-        }
-        footer strong { color: var(--brand-light); }
+/* ── TIPS TABLE ── */
+.tip-list{list-style:none;margin:16px 0;}
+.tip-list li{
+  padding:12px 0;border-bottom:1px solid var(--border2);
+  display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#a09080;
+}
+.tip-list li:last-child{border-bottom:none;}
+.tip-list li .tip-ic{font-size:15px;flex-shrink:0;margin-top:2px;}
+.tip-list li strong{color:var(--text);}
 
-        /* ── step connector line ── */
-        .connector { width: 2px; height: 32px; background: var(--border); margin: 0 0 0 19px; }
+/* ── FAQ ── */
+.faq{margin:16px 0;}
+.faq-item{border-bottom:1px solid var(--border2);padding:16px 0;}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{font-family:'Playfair Display',serif;font-size:1rem;color:var(--text);margin-bottom:8px;}
+.faq-a{font-size:14px;color:var(--muted);}
 
-        /* ── print friendly ── */
-        @media print {
-            body { background: #fff; color: #000; }
-            .blob, body::before { display: none; }
-        }
-    </style>
+/* ── STEP CONNECTOR ── */
+.conn{width:1px;height:36px;background:var(--border);margin:0 0 0 21px;}
+
+/* ── SECTION TITLE ACCENT ── */
+.sec-accent{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);
+  margin-bottom:10px;
+}
+.sec-accent::after{content:'';width:30px;height:1px;background:var(--gold-dim);}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:48px 0 64px;
+  color:var(--muted2);font-size:13px;
+  border-top:1px solid var(--border);margin-top:40px;
+}
+footer strong{color:var(--gold-light);}
+
+/* animation */
+@keyframes revealUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.page>*{animation:revealUp .6s ease both;}
+
+/* PRINT */
+@media print{
+  body{background:#fff;color:#000;}
+  .orb,body::after{display:none;}
+}
+</style>
 </head>
 <body>
 
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
 
-<div class="wrap">
+<div class="page">
 
-    <!-- ── HEADER ── -->
-    <header>
-        <div class="brand-pill"><span></span> Panduan Penggunaan</div>
-        <h1>Cara Memilih Foto di<br><em>Dhi Memories</em></h1>
-        <p class="subtitle">Tutorial lengkap untuk klien — dari login hingga mengirim pilihan foto ke fotografer.</p>
-    </header>
+<!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+<header>
+  <div class="brand-mark">
+    <span class="dhi">dhi</span>
+    <div class="divider-line"></div>
+    <span class="memories">memories</span>
+  </div>
+  <div class="hero-badge"><span class="dot"></span>Panduan Penggunaan Klien</div>
+  <h1>Cara Memilih Foto<br>di <em>Galeri Privat</em></h1>
+  <p class="hero-sub">Panduan lengkap langkah demi langkah — dari memasukkan PIN hingga mengirim daftar pilihan Anda ke fotografer.</p>
+</header>
 
-    <!-- ── STEPS ── -->
-    <section class="steps">
+<!-- ═══ TABLE OF CONTENTS ═══════════════════════════════════════ -->
+<nav class="toc">
+  <p class="toc-title">Daftar Isi</p>
+  <ul class="toc-list">
+    <li><a href="#step1"><span class="toc-num">01</span>Membuka Halaman & Memasukkan PIN</a></li>
+    <li><a href="#step2"><span class="toc-num">02</span>Memahami Tampilan Galeri</a></li>
+    <li><a href="#step3"><span class="toc-num">03</span>Cara Memilih Foto — Mode Thumbnail</a></li>
+    <li><a href="#step4"><span class="toc-num">04</span>Melihat Foto Lebih Besar — Lightbox</a></li>
+    <li><a href="#step5"><span class="toc-num">05</span>Mengelola Pilihan di Keranjang (Review)</a></li>
+    <li><a href="#step6"><span class="toc-num">06</span>Memulihkan Pilihan yang Tersimpan Otomatis</a></li>
+    <li><a href="#step7"><span class="toc-num">07</span>Mengirim Pilihan Foto via WhatsApp</a></li>
+    <li><a href="#step8"><span class="toc-num">08</span>Pintasan Keyboard & Tips</a></li>
+    <li><a href="#faq"><span class="toc-num">—</span>Pertanyaan yang Sering Diajukan (FAQ)</a></li>
+  </ul>
+</nav>
 
-        <!-- STEP 1 -->
-        <div class="step-group">
-            <div class="step-label">
-                <div class="step-num">1</div>
-                <div class="step-title">Buka Website & Masukkan PIN</div>
-            </div>
-            <div class="step-body">
-                <p>Buka link website Dhi Memories yang sudah diberikan oleh fotografer. Di halaman utama, Anda akan melihat kolom login. Masukkan <strong>PIN rahasia</strong> proyek Anda di kolom <em>"Username / PIN Proyek"</em>. Kolom password <strong>dikosongkan saja</strong>.</p>
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 1 — PIN
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step1">
+  <div class="sec-accent">Langkah 01</div>
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <h2 class="step-title">Membuka Halaman & Memasukkan PIN</h2>
+  </div>
+  <div class="step-body">
+    <p>Buka link website <strong>Dhi Memories</strong> yang sudah dikirimkan oleh fotografer Anda (biasanya via WhatsApp atau email). Anda akan langsung disambut halaman PIN — halaman gelap elegan dengan logo <em>dhi memories</em> di tengahnya.</p>
 
-                <div class="mock">
-                    <div class="mock-bar">
-                        <div class="dot dot-r"></div>
-                        <div class="dot dot-y"></div>
-                        <div class="dot dot-g"></div>
-                        <span class="url">dhi-memories.vercel.app</span>
-                    </div>
-                    <div class="mock-body">
-                        <div class="mock-form">
-                            <h3>Dhi <span style="color:var(--brand)">Memories</span></h3>
-                            <p>Masuk sebagai Admin atau Klien</p>
-                            <input class="mock-input highlight" type="text" value="123456" readonly placeholder="Username / PIN Proyek">
-                            <input class="mock-input" type="password" placeholder="Password (Kosongkan jika Klien)" readonly>
-                            <button class="mock-btn">Masuk Sistem</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="mock-browser">
+      <div class="mock-topbar">
+        <div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div>
+        <div class="mock-url">dhi-memories.vercel.app</div>
+      </div>
+      <div class="mock-content" style="background:#07060a;min-height:280px;display:flex;align-items:center;justify-content:center;">
+        <div class="pin-card-mock">
+          <div class="m-brand">
+            <div class="m-dhi">dhi</div>
+            <div class="m-sep"></div>
+            <div class="m-mem">memories</div>
+          </div>
+          <p class="m-label">Galeri Privat</p>
+          <p class="m-desc">Masukkan PIN dari fotografer Anda</p>
+          <div class="m-input">1 2 3 4 5 6</div>
+          <div class="m-btn">Buka Galeri</div>
+        </div>
+      </div>
+    </div>
 
-                <div class="callout callout-info">
-                    <span class="callout-icon">💡</span>
-                    <div class="callout-text"><strong>PIN diberikan oleh fotografer Anda.</strong> Jika belum punya, hubungi fotografer terlebih dahulu untuk meminta PIN akses proyek.</div>
-                </div>
-            </div>
+    <p><strong>Ketik PIN rahasia Anda</strong> lalu tekan tombol <em>"Buka Galeri"</em>. PIN diberikan oleh fotografer khusus untuk proyek sesi foto Anda. Setiap klien memiliki PIN berbeda.</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-text"><strong>Jika muncul pesan error "PIN tidak valid"</strong> — pastikan Anda mengetik PIN dengan benar (perhatikan angka yang mirip seperti 0 dan O). Jika PIN sudah benar tapi tetap error, hubungi fotografer untuk mengkonfirmasi PIN Anda.</div>
+    </div>
+
+    <!-- Error state mock -->
+    <p>Tampilan saat PIN salah:</p>
+    <div style="background:#07060a;border:1px solid var(--border);border-radius:4px;padding:28px;display:flex;justify-content:center;">
+      <div class="pin-card-mock" style="max-width:300px;">
+        <div class="m-brand" style="margin-bottom:16px;">
+          <div class="m-dhi" style="font-size:1.5rem;">dhi</div>
+          <div class="m-sep"></div>
+          <div class="m-mem">memories</div>
+        </div>
+        <div class="m-input idle">· · · · · ·</div>
+        <div class="m-err">❌ PIN tidak valid.</div>
+        <div class="m-btn">Buka Galeri</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-text"><strong>PIN bersifat rahasia.</strong> Jangan bagikan PIN kepada siapapun. PIN memberikan akses langsung ke foto privat sesi foto Anda.</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 2 — GALLERY OVERVIEW
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step2">
+  <div class="sec-accent">Langkah 02</div>
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <h2 class="step-title">Memahami Tampilan Galeri</h2>
+  </div>
+  <div class="step-body">
+    <p>Setelah PIN berhasil diverifikasi, galeri privat Anda terbuka. Ada beberapa elemen penting yang perlu Anda kenali sebelum mulai memilih.</p>
+
+    <div class="mock-browser">
+      <div class="mock-topbar">
+        <div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div>
+        <div class="mock-url">dhi-memories.vercel.app</div>
+      </div>
+
+      <!-- Gallery header -->
+      <div class="m-gallery-header">
+        <div class="m-header-left">
+          <span class="m-logo">dhi <span>memories</span></span>
+          <span class="m-project">Sesi Pernikahan Sarah & Budi</span>
+        </div>
+        <span class="m-counter">0 / 20</span>
+      </div>
+
+      <div style="padding:12px 16px;background:#0a0908;">
+        <!-- Info bar -->
+        <div class="m-info-bar">
+          ℹ️ &nbsp;58 foto tersedia — pilih hingga 20 foto terbaik Anda
         </div>
 
-        <div class="connector"></div>
-
-        <!-- STEP 2 -->
-        <div class="step-group">
-            <div class="step-label">
-                <div class="step-num">2</div>
-                <div class="step-title">Lihat Galeri Foto Anda</div>
-            </div>
-            <div class="step-body">
-                <p>Setelah masuk, semua foto dari sesi foto Anda akan ditampilkan dalam galeri. Scroll ke bawah untuk melihat semua foto yang tersedia. Di bagian atas layar, Anda bisa melihat nama proyek dan <strong>kuota foto</strong> yang bisa dipilih.</p>
-
-                <div class="mock">
-                    <div class="mock-bar">
-                        <div class="dot dot-r"></div>
-                        <div class="dot dot-y"></div>
-                        <div class="dot dot-g"></div>
-                        <span class="url">dhi-memories.vercel.app</span>
-                    </div>
-                    <div class="mock-body">
-                        <div class="counter-bar">
-                            <span class="counter-label">📁 Sesi Pernikahan Sarah & Budi</span>
-                            <span class="counter-badge">0 / 20</span>
-                        </div>
-                        <div class="photo-grid">
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a1/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a2/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a3/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a4/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a5/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a6/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a7/300/200" alt=""></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a8/300/200" alt=""></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Photo grid -->
+        <div class="m-photo-grid">
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/z1/300/200" alt=""><div class="m-card-overlay"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0001.jpg</div></div>
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/z2/300/200" alt=""><div class="m-card-overlay"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0002.jpg</div></div>
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/z3/300/200" alt=""><div class="m-card-overlay"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0003.jpg</div></div>
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/z4/300/200" alt=""><div class="m-card-overlay"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0004.jpg</div></div>
         </div>
 
-        <div class="connector"></div>
-
-        <!-- STEP 3 -->
-        <div class="step-group">
-            <div class="step-label">
-                <div class="step-num">3</div>
-                <div class="step-title">Klik Foto untuk Memilih</div>
-            </div>
-            <div class="step-body">
-                <p>Klik atau ketuk foto yang ingin Anda pilih untuk diedit. Foto yang sudah dipilih akan ditandai dengan <strong style="color:var(--accent)">tanda centang hijau ✓</strong> dan border berwarna. Klik kembali foto yang sama untuk <em>membatalkan</em> pilihan.</p>
-
-                <div class="mock">
-                    <div class="mock-body">
-                        <div class="counter-bar">
-                            <span class="counter-label">Foto terpilih</span>
-                            <span class="counter-badge" style="background:var(--brand)">3 / 20</span>
-                        </div>
-                        <div class="photo-grid">
-                            <div class="photo-thumb sel"><img src="https://picsum.photos/seed/a1/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a2/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb sel"><img src="https://picsum.photos/seed/a3/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb sel"><img src="https://picsum.photos/seed/a4/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a5/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a6/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a7/300/200" alt=""><div class="check-badge">✓</div></div>
-                            <div class="photo-thumb"><img src="https://picsum.photos/seed/a8/300/200" alt=""><div class="check-badge">✓</div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="callout callout-warn">
-                    <span class="callout-icon">⚠️</span>
-                    <div class="callout-text"><strong>Perhatikan kuota foto!</strong> Setiap proyek memiliki batas maksimal foto yang bisa dipilih (misalnya 20 foto). Jika sudah mencapai batas, Anda tidak bisa memilih foto tambahan tanpa membatalkan pilihan sebelumnya.</div>
-                </div>
-            </div>
+        <!-- Bottom bar -->
+        <div class="m-bottom-bar" style="margin-top:12px;border-radius:0 0 4px 4px;">
+          <div class="m-btn-review">📋 Review &nbsp;<strong>0</strong></div>
+          <div class="m-btn-send">↑ &nbsp;Kirim ke WhatsApp</div>
         </div>
+      </div>
+    </div>
 
-        <div class="connector"></div>
+    <p>Berikut penjelasan setiap elemen:</p>
+    <ul class="tip-list">
+      <li><span class="tip-ic">🔝</span><div><strong>Header atas (sticky)</strong> — selalu terlihat saat scroll. Di kiri ada nama proyek Anda, di kanan ada <strong>penghitung foto</strong> yang terus diperbarui.</div></li>
+      <li><span class="tip-ic">ℹ️</span><div><strong>Bar info kuning</strong> — menampilkan total foto yang tersedia dan batas maksimal foto yang bisa Anda pilih.</div></li>
+      <li><span class="tip-ic">🖼️</span><div><strong>Grid foto</strong> — semua foto sesi Anda ditampilkan di sini, diurutkan berdasarkan nama file. Hover/sentuh foto untuk melihat tombol aksi.</div></li>
+      <li><span class="tip-ic">📊</span><div><strong>Penghitung</strong> (pojok kanan atas) — menampilkan <em>X / Y</em> dimana X = jumlah yang sudah dipilih, Y = batas maksimal. Berubah hijau saat kuota penuh.</div></li>
+      <li><span class="tip-ic">⬇️</span><div><strong>Bar bawah (fixed)</strong> — selalu terlihat di bagian bawah layar. Berisi tombol <em>Review</em> dan <em>Kirim ke WhatsApp</em>.</div></li>
+    </ul>
+  </div>
+</section>
 
-        <!-- STEP 4 -->
-        <div class="step-group">
-            <div class="step-label">
-                <div class="step-num">4</div>
-                <div class="step-title">Kirim Pilihan via WhatsApp</div>
-            </div>
-            <div class="step-body">
-                <p>Setelah selesai memilih semua foto, klik tombol <strong>"Kirim Pilihan Foto"</strong> di bagian bawah layar. Tombol ini akan membuka WhatsApp dan mengirimkan daftar nama file foto pilihan Anda secara otomatis ke fotografer.</p>
+<div class="conn"></div>
 
-                <div class="mock">
-                    <div class="mock-body" style="text-align:center;">
-                        <div class="counter-bar" style="justify-content:center;">
-                            <span class="counter-badge" style="background:var(--accent); font-size:15px; padding: 5px 20px;">✓ 20 / 20 — Kuota Terpenuhi!</span>
-                        </div>
-                        <p style="font-size:13px; color:var(--muted); margin-bottom:0;">Tekan tombol di bawah untuk mengirim pilihan Anda</p>
-                        <div class="wa-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.859L.057 23.57a.75.75 0 00.918.918l5.7-1.473A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.88 0-3.645-.52-5.156-1.424l-.364-.216-3.782.977.999-3.671-.237-.378A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-                            Kirim Pilihan Foto
-                        </div>
-                    </div>
-                </div>
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 3 — SELECTING PHOTOS
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step3">
+  <div class="sec-accent">Langkah 03</div>
+  <div class="step-header">
+    <div class="step-num">3</div>
+    <h2 class="step-title">Cara Memilih Foto — Mode Thumbnail</h2>
+  </div>
+  <div class="step-body">
+    <p>Ada <strong>dua cara</strong> untuk memilih foto langsung dari grid tanpa membukanya lebih besar.</p>
 
-                <div class="callout callout-success">
-                    <span class="callout-icon">✅</span>
-                    <div class="callout-text"><strong>WhatsApp akan terbuka otomatis</strong> dengan pesan berisi daftar foto pilihan Anda yang siap dikirim. Cukup tekan tombol <em>Send / Kirim</em> di WhatsApp untuk menyelesaikan proses.</div>
-                </div>
-            </div>
+    <p><strong>Cara A — Tombol "Pilih" saat hover:</strong> Arahkan kursor (atau sentuh di HP) ke foto, lalu klik tombol <strong>"Pilih"</strong> yang muncul di pojok kanan atas foto.</p>
+
+    <div class="mock-browser" style="max-width:500px;">
+      <div class="mock-topbar"><div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div></div>
+      <div style="background:#0a0908;padding:16px;">
+        <div class="m-photo-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="m-photo-card selected"><img src="https://picsum.photos/seed/b1/300/200" alt=""><div class="m-card-overlay" style="opacity:1"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn sel-btn">✓ Terpilih</div></div></div><div class="m-photo-badge" style="display:flex;">✓</div><div class="m-card-name">DSC_0012.jpg</div></div>
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/b2/300/200" alt=""><div class="m-card-overlay" style="opacity:1"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn" style="border-color:var(--gold-dim);color:var(--gold-light);background:rgba(201,169,110,.15);">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0013.jpg ← hover</div></div>
+          <div class="m-photo-card"><img src="https://picsum.photos/seed/b3/300/200" alt=""><div class="m-card-overlay"><div class="m-card-btns"><div class="m-card-btn">Lihat</div><div class="m-card-btn">Pilih</div></div></div><div class="m-photo-badge">✓</div><div class="m-card-name">DSC_0014.jpg</div></div>
         </div>
-
-        <div class="divider"></div>
-
-        <!-- TIPS -->
-        <div class="step-group">
-            <div class="step-label">
-                <div class="step-num" style="background:var(--surface2); color:var(--brand); box-shadow: 0 0 20px rgba(59,130,246,.2);">💡</div>
-                <div class="step-title">Tips & Pertanyaan Umum</div>
-            </div>
-            <div class="step-body">
-                <ul class="tip-list">
-                    <li data-icon="📱">Bisa dibuka di HP maupun laptop — tampilan otomatis menyesuaikan layar.</li>
-                    <li data-icon="🔄">Jika halaman tidak muncul fotonya, coba refresh browser Anda.</li>
-                    <li data-icon="❌">Foto yang sudah dipilih bisa dibatalkan dengan klik lagi pada foto tersebut.</li>
-                    <li data-icon="⏱️">Tidak ada batas waktu — Anda bisa scroll dan pilih foto seperlahan yang dibutuhkan.</li>
-                    <li data-icon="📷">Foto yang ditampilkan adalah versi preview. File asli resolusi penuh akan dikirim oleh fotografer setelah proses editing selesai.</li>
-                    <li data-icon="🔑">PIN bersifat rahasia dan hanya berlaku untuk proyek Anda. Jangan bagikan ke pihak lain.</li>
-                    <li data-icon="📞">Jika menemui kendala teknis, hubungi fotografer Anda langsung via WhatsApp.</li>
-                </ul>
-            </div>
+        <div style="margin-top:12px;display:flex;justify-content:center;">
+          <div class="m-toast gold">✓ Dipilih — 1 / 20</div>
         </div>
+      </div>
+    </div>
 
-    </section>
+    <div class="callout callout-good">
+      <span class="callout-icon">✅</span>
+      <div class="callout-text">Setelah dipilih, foto akan memiliki <strong>border emas</strong> dan <strong>tanda centang emas (✓)</strong> di pojok kanan atas. Notifikasi kecil juga muncul di bagian bawah layar.</div>
+    </div>
 
-    <!-- ── FOOTER ── -->
-    <footer>
-        <strong>Dhi Memories</strong> — Panduan Klien v1.0<br>
-        Dokumen ini dibuat khusus untuk membantu klien memilih foto dengan mudah.
-    </footer>
+    <p style="margin-top:20px;"><strong>Cara B — Batalkan pilihan:</strong> Klik tombol "Pilih" pada foto yang sudah dipilih (berubah menjadi "✓ Terpilih") untuk membatalkan pilihan tersebut.</p>
 
-</div>
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-text">Jika Anda sudah mencapai batas maksimal foto, muncul notifikasi <strong style="color:#fbbf24;">"Batas X foto tercapai"</strong> dan tombol Pilih tidak akan berfungsi — Anda harus membatalkan salah satu pilihan dulu sebelum bisa memilih yang baru.</div>
+    </div>
 
+    <!-- Counter pill states -->
+    <p style="margin-top:20px;">Status penghitung foto di pojok kanan atas:</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+      <span class="m-counter">5 / 20 &nbsp;— memilih</span>
+      <span class="m-counter full">20 / 20 &nbsp;— ✓ Kuota Penuh</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <div class="m-toast neutral">Foto dihapus dari pilihan</div>
+      <div class="m-toast gold">✓ Dipilih — 8 / 20</div>
+      <div class="m-toast warn">⚠ Batas 20 foto tercapai</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 4 — LIGHTBOX
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step4">
+  <div class="sec-accent">Langkah 04</div>
+  <div class="step-header">
+    <div class="step-num">4</div>
+    <h2 class="step-title">Melihat Foto Lebih Besar — Lightbox</h2>
+  </div>
+  <div class="step-body">
+    <p>Sebelum memilih, Anda bisa melihat foto dalam tampilan <strong>layar penuh (lightbox)</strong> agar bisa menilainya dengan lebih jelas. Klik tombol <strong>"Lihat"</strong> yang muncul saat hover/sentuh foto.</p>
+
+    <div class="mock-browser">
+      <div class="mock-topbar"><div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div></div>
+      <div class="m-lightbox">
+        <div class="m-lb-header">
+          <span class="m-lb-name">DSC_0023.jpg</span>
+          <div class="m-lb-actions">
+            <div class="m-lb-sel">+ Pilih</div>
+            <div class="m-lb-sel" style="background:rgba(201,169,110,.1);border-color:var(--gold-dim);color:var(--gold-light);">✓ Terpilih — Batalkan</div>
+            <div class="m-lb-close">✕</div>
+          </div>
+        </div>
+        <div class="m-lb-body">
+          <div class="m-lb-nav m-lb-prev">‹</div>
+          <img src="https://picsum.photos/seed/lb1/800/500" class="m-lb-img" alt="">
+          <div class="m-lb-nav m-lb-next">›</div>
+        </div>
+        <div class="m-lb-footer">
+          <p class="m-lb-counter">23 / 58</p>
+          <p class="m-lb-hint">← → navigasi &nbsp;·&nbsp; Space = pilih &nbsp;·&nbsp; Esc = tutup</p>
+        </div>
+      </div>
+    </div>
+
+    <p>Di dalam lightbox, Anda bisa:</p>
+    <ul class="tip-list">
+      <li><span class="tip-ic">🔍</span><div><strong>Melihat foto resolusi lebih tinggi</strong> — foto ditampilkan dalam ukuran maksimal yang tersedia untuk membantu Anda menilai kualitas dan ekspresi.</div></li>
+      <li><span class="tip-ic">⬅➡</span><div><strong>Navigasi antar foto</strong> — gunakan tombol panah kiri/kanan di sisi foto untuk pindah ke foto sebelumnya atau berikutnya tanpa menutup lightbox.</div></li>
+      <li><span class="tip-ic">✅</span><div><strong>Pilih / Batalkan langsung</strong> — tombol <em>"+ Pilih"</em> atau <em>"✓ Terpilih — Batalkan"</em> di bagian atas untuk mengelola pilihan tanpa keluar dari lightbox.</div></li>
+      <li><span class="tip-ic">🔢</span><div><strong>Penghitung posisi</strong> — di bawah foto terlihat posisi foto saat ini, misalnya "23 / 58" artinya foto ke-23 dari 58 total foto.</div></li>
+      <li><span class="tip-ic">✕</span><div><strong>Menutup lightbox</strong> — klik tombol ✕ di pojok kanan atas, atau tekan tombol <kbd style="font-family:monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 6px;border-radius:3px;font-size:12px;">Esc</kbd> di keyboard.</div></li>
+    </ul>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-text"><strong>Tips:</strong> Gunakan lightbox untuk melihat ekspresi wajah, focus, dan detail foto sebelum memilih. Foto thumbnail di galeri mungkin terlihat mirip, tapi di lightbox perbedaannya lebih jelas.</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 5 — CART REVIEW
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step5">
+  <div class="sec-accent">Langkah 05</div>
+  <div class="step-header">
+    <div class="step-num">5</div>
+    <h2 class="step-title">Mengelola Pilihan di Keranjang (Review)</h2>
+  </div>
+  <div class="step-body">
+    <p>Tombol <strong>"📋 Review"</strong> di bar bawah membuka panel <em>keranjang pilihan</em> — daftar semua foto yang sudah Anda pilih. Gunakan ini untuk mengecek ulang sebelum mengirim.</p>
+
+    <div class="mock-browser">
+      <div class="mock-topbar"><div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div></div>
+      <div style="background:#07060a;padding:0;">
+        <div style="height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:.8rem;color:var(--muted);letter-spacing:.1em;">— galeri di belakang —</span>
+        </div>
+        <div class="m-cart">
+          <div class="m-cart-header">
+            <div>
+              <div class="m-cart-title">Foto Pilihan</div>
+              <div class="m-cart-sub">Review sebelum dikirim</div>
+            </div>
+            <div class="m-lb-close">✕</div>
+          </div>
+          <div style="background:var(--bg);padding-bottom:12px;">
+            <div class="m-cart-item">
+              <img src="https://picsum.photos/seed/c1/400/300" class="m-cart-thumb" alt="">
+              <span class="m-cart-name">DSC_0012.jpg</span>
+              <div class="m-rm-btn">Hapus</div>
+            </div>
+            <div class="m-cart-item">
+              <img src="https://picsum.photos/seed/c2/400/300" class="m-cart-thumb" alt="">
+              <span class="m-cart-name">DSC_0019.jpg</span>
+              <div class="m-rm-btn">Hapus</div>
+            </div>
+            <div class="m-cart-item">
+              <img src="https://picsum.photos/seed/c3/400/300" class="m-cart-thumb" alt="">
+              <span class="m-cart-name">DSC_0034.jpg</span>
+              <div class="m-rm-btn">Hapus</div>
+            </div>
+          </div>
+        </div>
+        <div class="m-bottom-bar">
+          <div class="m-btn-review">📋 Review &nbsp;<strong>3</strong></div>
+          <div class="m-btn-send">↑ &nbsp;Kirim ke WhatsApp</div>
+        </div>
+      </div>
+    </div>
+
+    <p>Di dalam panel Review:</p>
+    <ul class="tip-list">
+      <li><span class="tip-ic">🖼️</span><div><strong>Thumbnail tiap foto</strong> beserta nama filenya ditampilkan dalam urutan berurutan. Klik thumbnail untuk membuka foto tersebut di lightbox.</div></li>
+      <li><span class="tip-ic">🗑️</span><div><strong>Tombol "Hapus"</strong> di kanan setiap foto — untuk membatalkan pilihan foto itu dan menggantinya dengan foto lain tanpa harus kembali ke galeri.</div></li>
+      <li><span class="tip-ic">✕</span><div><strong>Menutup panel</strong> — klik tombol ✕ atau klik area gelap di luar panel untuk kembali ke galeri.</div></li>
+    </ul>
+
+    <div class="callout callout-good">
+      <span class="callout-icon">✅</span>
+      <div class="callout-text"><strong>Selalu lakukan Review sebelum mengirim!</strong> Pastikan semua foto yang terpilih sudah sesuai keinginan Anda. Perubahan tidak bisa dilakukan setelah pesan WhatsApp terkirim.</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 6 — RESTORE SESSION
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step6">
+  <div class="sec-accent">Langkah 06</div>
+  <div class="step-header">
+    <div class="step-num">6</div>
+    <h2 class="step-title">Memulihkan Pilihan yang Tersimpan Otomatis</h2>
+  </div>
+  <div class="step-body">
+    <p>Dhi Memories secara otomatis <strong>menyimpan progres pilihan Anda</strong> di browser. Jika Anda tidak sengaja menutup tab, refresh halaman, atau kehabisan baterai — pilihan Anda <em>tidak hilang</em>.</p>
+
+    <p>Saat Anda masuk kembali menggunakan PIN yang sama, banner kuning ini akan muncul:</p>
+
+    <div class="mock-browser">
+      <div class="mock-topbar"><div class="mock-dot md-r"></div><div class="mock-dot md-y"></div><div class="mock-dot md-g"></div></div>
+      <div style="background:#0a0908;padding:14px;">
+        <div class="m-gallery-header" style="border-radius:4px 4px 0 0;">
+          <div class="m-header-left">
+            <span class="m-logo">dhi <span>memories</span></span>
+            <span class="m-project">Sesi Pernikahan Sarah & Budi</span>
+          </div>
+          <span class="m-counter">0 / 20</span>
+        </div>
+        <div style="padding:10px;background:var(--surface);">
+          <div class="m-restore">
+            <span>📌 &nbsp;12 foto pilihan sebelumnya belum dikirim.</span>
+            <div class="m-restore-actions">
+              <div class="m-rbtn">Pulihkan</div>
+              <div class="m-dbtn">Abaikan</div>
+            </div>
+          </div>
+          <div class="m-info-bar">ℹ️ &nbsp;58 foto tersedia — pilih hingga 20 foto terbaik Anda</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="tip-list">
+      <li><span class="tip-ic">🔄</span><div><strong>Klik "Pulihkan"</strong> — semua pilihan sebelumnya dikembalikan seketika, dan Anda bisa melanjutkan dari tempat terakhir.</div></li>
+      <li><span class="tip-ic">✖️</span><div><strong>Klik "Abaikan"</strong> — pilihan yang tersimpan dihapus dan Anda memulai dari awal (gunakan ini jika ingin mulai ulang).</div></li>
+    </ul>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-text"><strong>Data disimpan di browser Anda</strong> (bukan di server). Jadi jika Anda berpindah ke HP atau browser yang berbeda, pilihan yang tersimpan tidak akan muncul di sana.</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 7 — SEND VIA WHATSAPP
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step7">
+  <div class="sec-accent">Langkah 07</div>
+  <div class="step-header">
+    <div class="step-num">7</div>
+    <h2 class="step-title">Mengirim Pilihan Foto via WhatsApp</h2>
+  </div>
+  <div class="step-body">
+    <p>Setelah yakin dengan semua pilihan Anda, klik tombol <strong>"↑ Kirim ke WhatsApp"</strong> di bagian bawah layar. WhatsApp akan terbuka otomatis dengan pesan yang sudah disiapkan.</p>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;margin:16px 0;">
+      <div class="m-bottom-bar" style="border:none;padding:0;justify-content:flex-start;gap:12px;">
+        <div class="m-btn-review" style="opacity:.5;">📋 Review &nbsp;<strong>15</strong></div>
+        <div class="m-btn-send" style="animation:none;transform:none;box-shadow:none;cursor:default;">↑ &nbsp;Kirim ke WhatsApp</div>
+        <span style="font-size:12px;color:var(--muted);">← Klik tombol ini</span>
+      </div>
+    </div>
+
+    <p>WhatsApp akan terbuka dengan pesan seperti ini, yang siap dikirim ke fotografer:</p>
+
+    <div class="m-wa-wrap">
+      <div class="m-wa-header">
+        <div class="wa-ic">
+          <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+        </div>
+        <div>
+          <div class="wa-name">Dhi Memories</div>
+          <div class="wa-num">+62 881-0271-53295</div>
+        </div>
+      </div>
+      <div class="m-wa-bubble">
+        Halo <strong>Dhi Memories</strong> 📸<br><br>
+        Proyek: <strong>Sesi Pernikahan Sarah & Budi</strong><br>
+        Jumlah foto dipilih: <strong>15 foto</strong><br><br>
+        • DSC_0003.jpg<br>
+        • DSC_0012.jpg<br>
+        • DSC_0019.jpg<br>
+        • DSC_0023.jpg<br>
+        • DSC_0031.jpg<br>
+        <span style="color:rgba(255,255,255,.4);">• ... dan 10 foto lainnya</span><br><br>
+        Terima kasih 🙏
+      </div>
+    </div>
+
+    <p>Pesan sudah terisi otomatis — <strong>cukup tekan tombol Kirim (Send)</strong> di WhatsApp. Setelah terkirim, fotografer akan menerima daftar file foto pilihan Anda dan segera memproses editing.</p>
+
+    <div class="callout callout-good">
+      <span class="callout-icon">✅</span>
+      <div class="callout-text">Setelah pesan terkirim, data pilihan yang tersimpan di browser otomatis dihapus, menandakan proses pemilihan Anda sudah selesai.</div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-text"><strong>Jika WhatsApp tidak terbuka:</strong> Pastikan WhatsApp sudah terinstal di perangkat Anda. Jika menggunakan laptop/PC, WhatsApp Web akan terbuka di browser. Jika tetap tidak bisa, screenshot daftar foto di Review dan kirim manual ke fotografer.</div>
+    </div>
+  </div>
+</section>
+
+<div class="conn"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     STEP 8 — KEYBOARD & TIPS
+═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="step8">
+  <div class="sec-accent">Langkah 08</div>
+  <div class="step-header">
+    <div class="step-num" style="font-size:.8rem;letter-spacing:.05em;">KB</div>
+    <h2 class="step-title">Pintasan Keyboard & Tips Pro</h2>
+  </div>
+  <div class="step-body">
+    <p>Jika Anda menggunakan laptop/PC, ada pintasan keyboard yang mempercepat proses pemilihan foto di dalam <strong>lightbox</strong>:</p>
+
+    <div class="kbd-grid">
+      <div class="kbd-row"><span class="kbd">←</span><span class="kbd-desc">Foto sebelumnya</span></div>
+      <div class="kbd-row"><span class="kbd">→</span><span class="kbd-desc">Foto berikutnya</span></div>
+      <div class="kbd-row"><span class="kbd">Space</span><span class="kbd-desc">Pilih / Batalkan foto</span></div>
+      <div class="kbd-row"><span class="kbd">Esc</span><span class="kbd-desc">Tutup lightbox</span></div>
+    </div>
+
+    <p style="margin-top:24px;"><strong>Tips untuk hasil terbaik:</strong></p>
+    <ul class="tip-list">
+      <li><span class="tip-ic">🖥️</span><div><strong>Gunakan layar besar jika memungkinkan</strong> — laptop atau tablet memudahkan Anda membandingkan foto sebelum memutuskan. Di HP juga bisa, tapi lightbox sangat membantu untuk detail.</div></li>
+      <li><span class="tip-ic">⏱️</span><div><strong>Tidak ada batas waktu</strong> — Anda bisa menutup browser, istirahat, dan kembali lagi nanti. Pilihan Anda tersimpan otomatis di browser yang sama.</div></li>
+      <li><span class="tip-ic">🔆</span><div><strong>Atur kecerahan layar</strong> — lihat foto di kondisi pencahayaan yang baik agar penilaian ekspresi dan warna lebih akurat.</div></li>
+      <li><span class="tip-ic">👁️</span><div><strong>Perhatikan ekspresi dan fokus</strong> — gunakan lightbox untuk melihat apakah mata subjek terbuka, ekspresi natural, dan foto tidak blur sebelum dipilih.</div></li>
+      <li><span class="tip-ic">📦</span><div><strong>Manfaatkan kuota penuh</strong> — jika jatah Anda 20 foto, usahakan pilih tepat 20 untuk mendapatkan hasil editing terbaik dari fotografer.</div></li>
+    </ul>
+  </div>
+</section>
+
+<div class="section-divider">Pertanyaan Umum</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FAQ
+═══════════════════════════════════════════════════════════════ -->
+<section id="faq" style="padding-bottom:40px;">
+  <div class="step-header">
+    <div class="step-num" style="background:var(--surface3);font-size:1.2rem;">?</div>
+    <h2 class="step-title">FAQ — Pertanyaan yang Sering Diajukan</h2>
+  </div>
+  <div class="step-body">
+    <div class="faq">
+      <div class="faq-item">
+        <p class="faq-q">Foto di galeri tidak muncul atau loading lama?</p>
+        <p class="faq-a">Foto diambil langsung dari Google Drive fotografer. Kecepatan loading tergantung koneksi internet Anda. Coba refresh halaman (F5 atau tarik ke bawah di HP), atau gunakan koneksi WiFi yang lebih stabil.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Saya sudah memilih foto tapi tidak sengaja refresh — pilihan saya hilang?</p>
+        <p class="faq-a">Tidak hilang! Sistem menyimpan pilihan Anda secara otomatis. Saat login kembali dengan PIN yang sama, banner kuning "Pulihkan" akan muncul. Klik "Pulihkan" untuk mendapatkan kembali pilihan Anda.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Bolehkah saya memilih lebih sedikit dari batas maksimal?</p>
+        <p class="faq-a">Boleh. Tidak ada kewajiban untuk menggunakan seluruh kuota. Namun, semakin banyak foto yang Anda pilih (hingga batas), semakin banyak kenangan yang akan diedit oleh fotografer.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Bisa tidak saya mengubah pilihan setelah mengirim ke WhatsApp?</p>
+        <p class="faq-a">Perubahan setelah pengiriman tergantung kesepakatan dengan fotografer. Hubungi fotografer via WhatsApp secepat mungkin jika ada revisi pilihan. Semakin cepat diinformasikan, semakin mudah diproses.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Apakah foto di galeri ini adalah file asli resolusi penuh?</p>
+        <p class="faq-a">Tidak. Foto yang ditampilkan adalah versi preview untuk memudahkan pemilihan. File asli resolusi penuh yang sudah diedit akan dikirimkan oleh fotografer melalui Google Drive setelah proses editing selesai.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">PIN saya tidak berfungsi padahal sudah benar?</p>
+        <p class="faq-a">Hubungi fotografer Anda. Kemungkinan PIN belum diaktifkan, atau ada perubahan dari sisi admin. Fotografer bisa mengecek dan memperbarui akses Anda.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════ -->
+<footer>
+  <div class="brand-mark" style="transform:scale(.7);margin-bottom:12px;opacity:.5;">
+    <span class="dhi">dhi</span>
+    <div class="divider-line"></div>
+    <span class="memories">memories</span>
+  </div>
+  <strong>Dhi Memories</strong> — Panduan Klien Lengkap<br>
+  Untuk bantuan lebih lanjut, hubungi fotografer Anda langsung via WhatsApp.
+</footer>
+
+</div><!-- /page -->
 </body>
 </html>
