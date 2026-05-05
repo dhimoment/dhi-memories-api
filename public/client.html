@@ -3,383 +3,958 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeri Klien - Dhi Memories</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { theme: { extend: { colors: { brand: { primary: '#3b82f6' } } } } }
-    </script>
+    <title>Dhi Memories — Galeri Privat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        .photo-card { transition: all 0.2s ease; border: 3px solid transparent; cursor: pointer; }
-        .photo-card:hover .overlay-actions { opacity: 1; }
-        .photo-card.selected { border-color: #10b981; transform: scale(0.96); }
-        .selected-badge { display: none; }
-        .photo-card.selected .selected-badge { display: flex; }
-        .overlay-actions { opacity: 0; transition: opacity 0.2s ease; }
-        .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        #cartModal { transition: opacity 0.3s ease; }
-        #cartModal.hidden { opacity: 0; pointer-events: none; }
-        #cartContent { transition: transform 0.3s ease; }
-        #cartModal.hidden #cartContent { transform: translateY(100%); }
-        #cartModal:not(.hidden) #cartContent { transform: translateY(0); }
-        #lightbox { transition: opacity 0.25s ease; }
-        #lightbox.hidden { opacity: 0; pointer-events: none; }
-        #lightbox:not(.hidden) { opacity: 1; }
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        .toast-show { opacity: 1 !important; transform: translate(-50%, 0) !important; }
-        #toast { opacity: 0; transform: translate(-50%, 16px); transition: all 0.3s ease; pointer-events: none; }
+        :root {
+            --gold: #c9a96e;
+            --gold-light: #e8d5b0;
+            --gold-dim: #8a6e45;
+            --bg: #0a0908;
+            --surface: #131110;
+            --surface2: #1c1916;
+            --border: #2a2520;
+            --text: #f0ebe3;
+            --muted: #7a7068;
+            --emerald: #4ade80;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+            cursor: default;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.4;
+        }
+
+        /* ── BRAND MARK ───────────────────────────────────── */
+        .brand-mark {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            line-height: 1;
+        }
+        .brand-mark .dhi {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: 0.12em;
+            line-height: 1;
+        }
+        .brand-mark .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 8px 0 7px;
+        }
+        .brand-mark .memories {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.45em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        /* ── PIN SECTION ──────────────────────────────────── */
+        #pinSection {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(120px);
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(201,169,110,0.06); top: 10%; left: 60%; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(201,169,110,0.04); bottom: 10%; left: 10%; }
+
+        .pin-card {
+            max-width: 420px;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: revealUp 0.8s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        /* Corner accents */
+        .pin-card::before, .pin-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--gold-dim);
+            border-style: solid;
+        }
+        .pin-card::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+        .pin-card::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+        .pin-subtitle {
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .pin-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; }
+
+        .pin-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1rem 1.5rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 0.5em;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .pin-input:focus { border-color: var(--gold-dim); }
+        .pin-input::placeholder { color: var(--border); letter-spacing: 0.3em; }
+
+        .pin-btn {
+            width: 100%;
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            color: var(--gold-light);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pin-btn:hover { background: var(--gold-dim); color: var(--bg); border-color: var(--gold-dim); }
+        .pin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .pin-error { font-size: 0.8rem; color: #f87171; margin-top: 0.75rem; display: none; }
+
+        /* ── GALLERY ──────────────────────────────────────── */
+        #gallerySection { display: none; padding-bottom: 7rem; }
+
+        .gallery-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(10,9,8,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+        }
+        .gallery-header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--text);
+            letter-spacing: 0.08em;
+        }
+        .header-logo span { color: var(--gold); font-style: italic; }
+        .header-project {
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            text-transform: uppercase;
+            border-left: 1px solid var(--border);
+            padding-left: 1rem;
+        }
+
+        .counter-pill {
+            padding: 0.4rem 1rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--text);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .counter-pill.full { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--emerald); }
+
+        .gallery-info {
+            max-width: 1400px;
+            margin: 1.5rem auto 1rem;
+            padding: 0 1.5rem;
+        }
+        .info-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(201,169,110,0.04);
+            border: 1px solid rgba(201,169,110,0.15);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            color: var(--gold-dim);
+        }
+        .info-bar svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--gold); }
+
+        /* Restore banner */
+        .restore-banner {
+            max-width: 1400px;
+            margin: 0 auto 1rem;
+            padding: 0 1.5rem;
+            display: none;
+        }
+        .restore-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.75rem 1.25rem;
+            background: rgba(201,169,110,0.06);
+            border: 1px solid rgba(201,169,110,0.2);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: var(--gold-light);
+        }
+        .restore-actions { display: flex; gap: 0.5rem; }
+        .btn-restore {
+            padding: 0.35rem 0.9rem;
+            background: var(--gold-dim);
+            color: var(--bg);
+            border: none;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-restore:hover { background: var(--gold); }
+        .btn-dismiss {
+            padding: 0.35rem 0.9rem;
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-dismiss:hover { border-color: var(--muted); color: var(--text); }
+
+        /* Photo grid */
+        .photo-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        @media(min-width: 640px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media(min-width: 1024px) { .photo-grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; } }
+        @media(min-width: 1280px) { .photo-grid { grid-template-columns: repeat(5, 1fr); } }
+
+        .photo-card {
+            position: relative;
+            border-radius: 3px;
+            overflow: hidden;
+            aspect-ratio: 3/2;
+            background: var(--surface2);
+            border: 1px solid transparent;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        .photo-card:hover { border-color: var(--border); transform: translateY(-2px); }
+        .photo-card.selected { border-color: var(--gold-dim); box-shadow: 0 0 0 1px var(--gold-dim); }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+        .photo-card:hover img { transform: scale(1.03); }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10,9,8,0.85) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.25s;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 0.5rem;
+        }
+        .photo-card:hover .card-overlay, .photo-card.selected .card-overlay { opacity: 1; }
+
+        .card-actions { display: flex; gap: 0.35rem; }
+        .card-btn {
+            padding: 0.3rem 0.65rem;
+            background: rgba(10,9,8,0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 2px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .card-btn:hover { background: rgba(255,255,255,0.15); }
+        .card-btn.select-btn:hover { background: rgba(201,169,110,0.25); border-color: var(--gold-dim); color: var(--gold-light); }
+
+        .card-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--gold-dim);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: var(--bg);
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: 0 0 0 2px rgba(201,169,110,0.2);
+        }
+        .photo-card.selected .card-badge { display: flex; }
+
+        .card-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem 0.6rem;
+            font-size: 0.65rem;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.04em;
+            color: rgba(240,235,227,0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
+        /* ── BOTTOM BAR ──────────────────────────────────── */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10,9,8,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            z-index: 40;
+        }
+        .bottom-bar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .btn-review {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-review:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+
+        .btn-send {
+            padding: 0.75rem 2rem;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            color: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-send:hover { background: var(--gold); border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,169,110,0.2); }
+
+        /* ── CART MODAL ───────────────────────────────────── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+
+        .cart-sheet {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        .modal-backdrop.open .cart-sheet { transform: translateY(0); }
+
+        .cart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .cart-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text); }
+        .cart-sub { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em; margin-top: 0.2rem; }
+        .btn-close {
+            width: 2rem;
+            height: 2rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-close:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+        .btn-close svg { width: 14px; height: 14px; }
+
+        .cart-body { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; background: var(--bg); }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.2s;
+        }
+        .cart-item:hover { border-color: var(--border); }
+        .cart-thumb {
+            width: 5rem;
+            height: 3.5rem;
+            object-fit: cover;
+            border-radius: 2px;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .cart-thumb:hover { opacity: 0.8; }
+        .cart-item-name { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.04em; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-remove {
+            padding: 0.3rem 0.75rem;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.2);
+            border-radius: 2px;
+            color: #f87171;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-remove:hover { background: rgba(248,113,113,0.1); }
+
+        /* ── LIGHTBOX ─────────────────────────────────────── */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(0,0,0,0.97);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #lightbox.open { opacity: 1; pointer-events: auto; }
+
+        .lb-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(42,37,32,0.8);
+            flex-shrink: 0;
+            gap: 1rem;
+        }
+        .lb-name { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.06em; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+
+        .lb-select-btn {
+            padding: 0.45rem 1.25rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .lb-select-btn:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+        .lb-select-btn.selected { background: rgba(201,169,110,0.12); border-color: var(--gold-dim); color: var(--gold-light); }
+
+        .lb-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 0 4rem;
+        }
+        .lb-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 2px; user-select: none; transition: opacity 0.2s; }
+        .lb-img.loading { opacity: 0.4; }
+
+        .lb-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2.5rem;
+            height: 2.5rem;
+            background: rgba(20,17,14,0.7);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .lb-nav:hover { border-color: var(--gold-dim); color: var(--gold-light); background: rgba(201,169,110,0.1); }
+        .lb-nav svg { width: 1rem; height: 1rem; }
+        .lb-prev { left: 0.75rem; }
+        .lb-next { right: 0.75rem; }
+
+        .lb-footer {
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(42,37,32,0.8);
+            flex-shrink: 0;
+        }
+        .lb-counter { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.15em; }
+        .lb-hint { font-size: 0.68rem; color: rgba(122,112,104,0.5); letter-spacing: 0.1em; margin-top: 0.2rem; }
+
+        /* ── TOAST ────────────────────────────────────────── */
+        #toast {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translate(-50%, 12px);
+            z-index: 70;
+            padding: 0.6rem 1.25rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            color: var(--text);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        #toast.show { opacity: 1; transform: translate(-50%, 0); }
+        #toast.gold { border-color: var(--gold-dim); color: var(--gold-light); background: rgba(201,169,110,0.08); }
+        #toast.warn { border-color: rgba(251,191,36,0.4); color: #fbbf24; background: rgba(251,191,36,0.06); }
+
+        /* ── ANIMATIONS ───────────────────────────────────── */
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-300 font-sans min-h-screen selection:bg-brand-primary selection:text-white">
+<body>
 
-    <!-- PIN SECTION -->
-    <div id="pinSection" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
-        <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center fade-in">
-            <div class="w-16 h-16 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <svg class="w-8 h-8 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+<!-- ═══ PIN SECTION ═══════════════════════════════════════════ -->
+<section id="pinSection">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="pin-card">
+        <div class="brand-mark">
+            <span class="dhi">dhi</span>
+            <div class="divider"></div>
+            <span class="memories">memories</span>
+        </div>
+
+        <p class="pin-subtitle">Galeri Privat</p>
+        <p class="pin-desc">Masukkan PIN dari fotografer Anda</p>
+
+        <form id="pinForm">
+            <input type="text" id="clientPin" class="pin-input" placeholder="· · · · · ·" maxlength="20" required autocomplete="off">
+            <p id="pinError" class="pin-error"></p>
+            <button type="submit" id="submitBtn" class="pin-btn">Buka Galeri</button>
+        </form>
+    </div>
+</section>
+
+<!-- ═══ GALLERY SECTION ═══════════════════════════════════════ -->
+<section id="gallerySection">
+    <header class="gallery-header">
+        <div class="gallery-header-inner">
+            <div class="header-brand">
+                <span class="header-logo">dhi <span>memories</span></span>
+                <span class="header-project" id="projectNameUI"></span>
             </div>
-            <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">Galeri <span class="text-brand-primary">Privat</span></h2>
-            <p class="text-slate-400 mb-8 text-sm">Masukkan PIN dari fotografer Anda</p>
-            <form id="pinForm" class="space-y-5">
-                <input type="text" id="clientPin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white text-center text-3xl font-mono tracking-[0.5em] focus:ring-2 focus:ring-brand-primary focus:outline-none transition-all" placeholder="------" maxlength="20" required autocomplete="off">
-                <p id="pinError" class="text-red-400 text-sm hidden"></p>
-                <button type="submit" id="submitBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/25">Buka Galeri</button>
-            </form>
+            <span class="counter-pill" id="counterUI">0 / 0</span>
+        </div>
+    </header>
+
+    <div class="gallery-info">
+        <div class="info-bar" id="instructionUI">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="instructionText">Menghubungkan ke server...</span>
         </div>
     </div>
 
-    <!-- GALLERY SECTION -->
-    <div id="gallerySection" style="display: none;" class="pb-40">
-        <div class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="overflow-hidden">
-                    <h1 class="text-base md:text-lg font-bold text-white truncate" id="projectNameUI">Memuat...</h1>
-                    <p class="text-xs text-slate-500" id="photoCountUI"></p>
-                </div>
-                <span id="counterUI" class="px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3">0 / 0</span>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 mt-4 mb-4">
-            <div class="bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-center py-3 px-4 rounded-xl text-sm font-medium" id="instructionUI">Menghubungkan...</div>
-        </div>
-
-        <!-- RESTORE BANNER -->
-        <div id="restoreBanner" class="hidden max-w-7xl mx-auto px-4 mb-4">
-            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 py-3 px-4 rounded-xl text-sm flex items-center justify-between gap-3 flex-wrap">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span id="restoreText"></span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="restoreSelection()" class="px-3 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-colors">Pulihkan</button>
-                    <button onclick="clearSavedSelection()" class="px-3 py-1 bg-slate-700 text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-600 transition-colors">Abaikan</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4" id="photoGrid"></div>
-
-        <div class="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-4 z-40">
-            <div class="max-w-7xl mx-auto flex justify-center gap-3">
-                <button onclick="openCart()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-3 px-5 rounded-xl transition-all flex items-center gap-2 text-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Review (<span id="cartCount">0</span>)
-                </button>
-                <button onclick="submitSelection()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 flex items-center gap-2 text-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                    Kirim ke WhatsApp
-                </button>
+    <div class="restore-banner" id="restoreBanner">
+        <div class="restore-inner">
+            <span id="restoreText"></span>
+            <div class="restore-actions">
+                <button class="btn-restore" onclick="restoreSelection()">Pulihkan</button>
+                <button class="btn-dismiss" onclick="clearSavedSelection()">Abaikan</button>
             </div>
         </div>
     </div>
 
-    <!-- CART MODAL -->
-    <div id="cartModal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
-        <div id="cartContent" class="bg-slate-900 w-full max-w-4xl h-[80vh] rounded-t-3xl border-t border-slate-700 shadow-2xl flex flex-col">
-            <div class="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Foto Pilihan Anda</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Review sebelum dikirim ke WhatsApp</p>
-                </div>
-                <button onclick="closeCart()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-300 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-4 overflow-y-auto flex-1 bg-slate-950">
-                <div id="cartList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-            </div>
-        </div>
-    </div>
+    <div class="photo-grid" id="photoGrid"></div>
 
-    <!-- LIGHTBOX -->
-    <div id="lightbox" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col">
-        <div class="flex items-center justify-between px-4 py-3 shrink-0 bg-black/40">
-            <p id="lightboxName" class="text-slate-300 text-sm font-mono truncate flex-1 mr-4"></p>
-            <div class="flex items-center gap-2 shrink-0">
-                <button id="lightboxSelectBtn" onclick="toggleFromLightbox()" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-slate-700 text-white hover:bg-emerald-500">+ Pilih Foto</button>
-                <button onclick="closeLightbox()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-300 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        </div>
-        <div class="flex-1 flex items-center justify-center relative overflow-hidden px-12">
-            <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-4 p-3 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors z-10">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    <div class="bottom-bar">
+        <div class="bottom-bar-inner">
+            <button class="btn-review" onclick="openCart()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Review &nbsp;<span id="cartCount">0</span>
             </button>
-            <img id="lightboxImg" src="" alt="" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl select-none">
-            <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-4 p-3 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors z-10">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <button class="btn-send" onclick="submitSelection()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                Kirim ke WhatsApp
             </button>
         </div>
-        <div class="py-3 text-center shrink-0">
-            <p id="lightboxCounter" class="text-slate-500 text-xs"></p>
-            <p class="text-slate-600 text-xs mt-1">← → navigasi &nbsp;|&nbsp; Space = pilih &nbsp;|&nbsp; Esc = tutup</p>
+    </div>
+</section>
+
+<!-- ═══ CART MODAL ════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="cartModal" onclick="handleBackdropClick(event)">
+    <div class="cart-sheet" id="cartSheet">
+        <div class="cart-header">
+            <div>
+                <h3 class="cart-title">Foto Pilihan</h3>
+                <p class="cart-sub">Review sebelum dikirim</p>
+            </div>
+            <button class="btn-close" onclick="closeCart()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="cart-body" id="cartList"></div>
+    </div>
+</div>
+
+<!-- ═══ LIGHTBOX ══════════════════════════════════════════════ -->
+<div id="lightbox">
+    <div class="lb-header">
+        <span class="lb-name" id="lbName"></span>
+        <div class="lb-actions">
+            <button class="lb-select-btn" id="lbSelectBtn" onclick="toggleFromLightbox()">+ Pilih</button>
+            <button class="btn-close" onclick="closeLightbox()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
     </div>
+    <div class="lb-body">
+        <button class="lb-nav lb-prev" onclick="navigateLightbox(-1)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <img id="lbImg" src="" alt="" class="lb-img">
+        <button class="lb-nav lb-next" onclick="navigateLightbox(1)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+    </div>
+    <div class="lb-footer">
+        <p class="lb-counter" id="lbCounter"></p>
+        <p class="lb-hint">← → navigasi &nbsp;·&nbsp; Space = pilih &nbsp;·&nbsp; Esc = tutup</p>
+    </div>
+</div>
 
-    <!-- TOAST -->
-    <div id="toast" class="fixed bottom-24 left-1/2 z-[70] px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl text-white bg-slate-700 border border-slate-600 whitespace-nowrap"></div>
+<!-- ═══ TOAST ══════════════════════════════════════════════════ -->
+<div id="toast"></div>
 
 <script>
-    const API_URL = '/api';
-    let activeProject = null;
-    let realPhotos = [];
-    let selectedPhotos = [];
-    let currentLightboxIndex = 0;
-    let savedSelectionData = null;
+const API_URL = '/api';
+let activeProject = null, realPhotos = [], selectedPhotos = [], lbIndex = 0, savedData = null;
 
-    function storageKey(pin) { return `dhi_sel_${pin}`; }
-    function saveSelection() { if (activeProject) localStorage.setItem(storageKey(activeProject.pin), JSON.stringify(selectedPhotos)); }
-    function loadSavedSelection(pin) { try { const r = localStorage.getItem(storageKey(pin)); return r ? JSON.parse(r) : null; } catch { return null; } }
+/* ── STORAGE ─────────────────────────────────── */
+const sKey = pin => `dhimem_${pin}`;
+function saveSelection() { if (activeProject) localStorage.setItem(sKey(activeProject.pin), JSON.stringify(selectedPhotos)); }
+function loadSaved(pin) { try { const r = localStorage.getItem(sKey(pin)); return r ? JSON.parse(r) : null; } catch { return null; } }
+function clearSavedSelection() {
+    if (activeProject) localStorage.removeItem(sKey(activeProject.pin));
+    document.getElementById('restoreBanner').style.display = 'none';
+    savedData = null;
+}
+function restoreSelection() {
+    let n = 0;
+    (savedData || []).forEach(s => {
+        if (selectedPhotos.find(p => p.id === s.id)) return;
+        if (selectedPhotos.length >= activeProject.maxPhotos) return;
+        if (!realPhotos.find(p => p.id === s.id)) return;
+        selectedPhotos.push(s);
+        document.getElementById(`photo-${s.id}`)?.classList.add('selected');
+        n++;
+    });
+    saveSelection(); updateCounter(); renderCartList();
+    document.getElementById('restoreBanner').style.display = 'none';
+    savedData = null;
+    showToast(`${n} foto berhasil dipulihkan`, 'gold');
+}
 
-    function clearSavedSelection() {
-        if (activeProject) localStorage.removeItem(storageKey(activeProject.pin));
-        document.getElementById('restoreBanner').classList.add('hidden');
-        savedSelectionData = null;
-    }
-
-    function restoreSelection() {
-        if (!savedSelectionData) return;
-        let count = 0;
-        savedSelectionData.forEach(saved => {
-            if (selectedPhotos.find(p => p.id === saved.id)) return;
-            if (selectedPhotos.length >= activeProject.maxPhotos) return;
-            const photo = realPhotos.find(p => p.id === saved.id);
-            if (!photo) return;
-            selectedPhotos.push(saved);
-            const el = document.getElementById(`photo-${saved.id}`);
-            if (el) el.classList.add('selected');
-            count++;
-        });
-        updateCounter();
-        renderCartList();
-        saveSelection();
-        document.getElementById('restoreBanner').classList.add('hidden');
-        savedSelectionData = null;
-        showToast(`✅ ${count} foto berhasil dipulihkan`);
-    }
-
-    // PIN FORM
-    document.getElementById('pinForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const pin = document.getElementById('clientPin').value.trim();
-        const btn = document.getElementById('submitBtn');
-        const err = document.getElementById('pinError');
-        btn.textContent = 'Memeriksa...'; btn.disabled = true;
-        err.classList.add('hidden');
-        try {
-            const res = await fetch(`${API_URL}/projects/${pin}/photos`);
-            const data = await res.json();
-            if (res.ok) {
-                activeProject = data.project;
-                realPhotos = data.photos.sort((a, b) => a.name.localeCompare(b.name));
-                document.getElementById('pinSection').style.display = 'none';
-                document.getElementById('gallerySection').style.display = 'block';
-                document.getElementById('projectNameUI').textContent = activeProject.name;
-                document.getElementById('photoCountUI').textContent = `${realPhotos.length} foto tersedia`;
-                document.getElementById('counterUI').textContent = `0 / ${activeProject.maxPhotos}`;
-                document.getElementById('instructionUI').textContent =
-                    `${realPhotos.length} foto ditemukan. Pilih hingga ${activeProject.maxPhotos} foto terbaik Anda. Klik foto untuk lihat full.`;
-                renderPhotos();
-                const saved = loadSavedSelection(pin);
-                if (saved && saved.length > 0) {
-                    savedSelectionData = saved;
-                    document.getElementById('restoreText').textContent =
-                        `Ada ${saved.length} foto yang sudah dipilih sebelumnya dan belum dikirim.`;
-                    document.getElementById('restoreBanner').classList.remove('hidden');
-                }
-            } else {
-                err.textContent = data.error || 'PIN tidak valid.';
-                err.classList.remove('hidden');
-                btn.textContent = 'Buka Galeri'; btn.disabled = false;
+/* ── PIN FORM ────────────────────────────────── */
+document.getElementById('pinForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const pin = document.getElementById('clientPin').value.trim();
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('pinError');
+    btn.textContent = 'Memeriksa...'; btn.disabled = true; err.style.display = 'none';
+    try {
+        const res = await fetch(`${API_URL}/projects/${pin}/photos`);
+        const data = await res.json();
+        if (res.ok) {
+            activeProject = data.project;
+            realPhotos = data.photos.sort((a, b) => a.name.localeCompare(b.name));
+            document.getElementById('pinSection').style.display = 'none';
+            document.getElementById('gallerySection').style.display = 'block';
+            document.getElementById('projectNameUI').textContent = activeProject.name;
+            document.getElementById('counterUI').textContent = `0 / ${activeProject.maxPhotos}`;
+            document.getElementById('instructionText').textContent =
+                `${realPhotos.length} foto tersedia — pilih hingga ${activeProject.maxPhotos} foto terbaik Anda`;
+            renderPhotos();
+            const saved = loadSaved(pin);
+            if (saved?.length) {
+                savedData = saved;
+                document.getElementById('restoreText').textContent =
+                    `${saved.length} foto pilihan sebelumnya belum dikirim.`;
+                document.getElementById('restoreBanner').style.display = 'block';
             }
-        } catch {
-            err.textContent = 'Gagal terhubung ke server.';
-            err.classList.remove('hidden');
+        } else {
+            err.textContent = data.error || 'PIN tidak valid.';
+            err.style.display = 'block';
             btn.textContent = 'Buka Galeri'; btn.disabled = false;
         }
-    });
-
-    function escapeAttr(str) { return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
-
-    function renderPhotos() {
-        const grid = document.getElementById('photoGrid');
-        if (!realPhotos.length) {
-            grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500"><p>Tidak ada foto ditemukan.</p></div>`;
-            return;
-        }
-        grid.innerHTML = realPhotos.map((photo, idx) => {
-            const thumb = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/,'=s800') : 'https://placehold.co/800x533/1e293b/475569?text=No+Image';
-            return `
-                <div class="relative photo-card rounded-xl overflow-hidden aspect-[3/2] bg-slate-800 shadow-md" id="photo-${photo.id}">
-                    <img src="${thumb}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/800x533/1e293b/475569?text=Error'">
-                    <div class="overlay-actions absolute inset-0 bg-black/50 flex items-center justify-center gap-2">
-                        <button onclick="openLightbox(${idx})" class="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg text-xs font-semibold border border-white/20 transition-all flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            Lihat
-                        </button>
-                        <button onclick="togglePhoto('${photo.id}','${escapeAttr(photo.name)}','${escapeAttr(thumb)}')" class="px-3 py-1.5 bg-emerald-500/80 hover:bg-emerald-500 backdrop-blur-sm text-white rounded-lg text-xs font-semibold border border-emerald-400/30 transition-all flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Pilih
-                        </button>
-                    </div>
-                    <div class="selected-badge absolute top-2.5 right-2.5 bg-emerald-500 text-white w-7 h-7 rounded-full items-center justify-center font-bold shadow-lg z-10 ring-4 ring-emerald-500/30 text-sm">✓</div>
-                    <div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none">
-                        <p class="text-slate-300 text-xs font-mono truncate">${photo.name}</p>
-                    </div>
-                </div>`;
-        }).join('');
+    } catch {
+        err.textContent = 'Gagal terhubung ke server.';
+        err.style.display = 'block';
+        btn.textContent = 'Buka Galeri'; btn.disabled = false;
     }
+});
 
-    function togglePhoto(id, fileName, imgUrl) {
-        const el = document.getElementById(`photo-${id}`);
-        const idx = selectedPhotos.findIndex(p => p.id === id);
-        if (idx > -1) {
-            selectedPhotos.splice(idx, 1);
-            el.classList.remove('selected');
-            showToast('Foto dihapus dari pilihan');
-        } else {
-            if (selectedPhotos.length >= activeProject.maxPhotos) {
-                showToast(`⚠️ Batas ${activeProject.maxPhotos} foto tercapai!`, 'warn'); return;
-            }
-            selectedPhotos.push({ id, fileName, imgUrl });
-            el.classList.add('selected');
-            showToast(`✓ Foto dipilih (${selectedPhotos.length}/${activeProject.maxPhotos})`);
-        }
-        saveSelection();
-        updateCounter();
-        renderCartList();
-        updateLightboxSelectBtn();
+/* ── RENDER PHOTOS ───────────────────────────── */
+function ea(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function renderPhotos() {
+    const g = document.getElementById('photoGrid');
+    if (!realPhotos.length) { g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--muted);font-size:.85rem;letter-spacing:.08em">Tidak ada foto ditemukan</div>`; return; }
+    g.innerHTML = realPhotos.map((p, i) => {
+        const t = p.thumbnailLink ? p.thumbnailLink.replace(/=s\d+/,'=s800') : '';
+        return `<div class="photo-card" id="photo-${p.id}">
+            <img src="${t}" loading="lazy" onerror="this.style.opacity='.3'">
+            <div class="card-overlay">
+                <div class="card-actions">
+                    <button class="card-btn" onclick="openLightbox(${i})">Lihat</button>
+                    <button class="card-btn select-btn" onclick="togglePhoto('${p.id}','${ea(p.name)}','${ea(t)}')">Pilih</button>
+                </div>
+            </div>
+            <div class="card-badge">✓</div>
+            <div class="card-name">${p.name}</div>
+        </div>`;
+    }).join('');
+}
+
+/* ── TOGGLE PHOTO ────────────────────────────── */
+function togglePhoto(id, fileName, imgUrl) {
+    const el = document.getElementById(`photo-${id}`);
+    const idx = selectedPhotos.findIndex(p => p.id === id);
+    if (idx > -1) {
+        selectedPhotos.splice(idx, 1); el.classList.remove('selected');
+        showToast('Foto dihapus dari pilihan');
+    } else {
+        if (selectedPhotos.length >= activeProject.maxPhotos) { showToast(`Batas ${activeProject.maxPhotos} foto tercapai`, 'warn'); return; }
+        selectedPhotos.push({ id, fileName, imgUrl }); el.classList.add('selected');
+        showToast(`Dipilih — ${selectedPhotos.length} / ${activeProject.maxPhotos}`, 'gold');
     }
+    saveSelection(); updateCounter(); renderCartList(); updateLbBtn();
+}
+function updateCounter() {
+    const el = document.getElementById('counterUI');
+    document.getElementById('cartCount').textContent = selectedPhotos.length;
+    el.textContent = `${selectedPhotos.length} / ${activeProject.maxPhotos}`;
+    el.className = selectedPhotos.length === activeProject.maxPhotos ? 'counter-pill full' : 'counter-pill';
+}
 
-    function updateCounter() {
-        const el = document.getElementById('counterUI');
-        document.getElementById('cartCount').textContent = selectedPhotos.length;
-        el.textContent = `${selectedPhotos.length} / ${activeProject.maxPhotos}`;
-        el.className = selectedPhotos.length === activeProject.maxPhotos
-            ? 'px-4 py-2 bg-emerald-500 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3'
-            : 'px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3';
-    }
+/* ── CART ────────────────────────────────────── */
+function openCart() { document.getElementById('cartModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeCart() { document.getElementById('cartModal').classList.remove('open'); document.body.style.overflow=''; }
+function handleBackdropClick(e) { if (e.target === document.getElementById('cartModal')) closeCart(); }
+function renderCartList() {
+    const el = document.getElementById('cartList');
+    if (!selectedPhotos.length) { el.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted);font-size:.8rem;letter-spacing:.1em">Belum ada foto yang dipilih</div>`; return; }
+    el.innerHTML = selectedPhotos.map(p => `
+        <div class="cart-item">
+            <img src="${p.imgUrl}" class="cart-thumb" onclick="openLightboxById('${p.id}')" loading="lazy">
+            <span class="cart-item-name">${p.fileName}</span>
+            <button class="btn-remove" onclick="togglePhoto('${p.id}','${ea(p.fileName)}','${ea(p.imgUrl)}')">Hapus</button>
+        </div>`).join('');
+}
 
-    function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
-    function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
+/* ── LIGHTBOX ────────────────────────────────── */
+function openLightbox(i) {
+    lbIndex = i; renderLb();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', lbKey);
+}
+function openLightboxById(id) { const i = realPhotos.findIndex(p=>p.id===id); if(i>-1) openLightbox(i); }
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', lbKey);
+}
+function lbKey(e) {
+    if (e.key==='ArrowRight') navigateLightbox(1);
+    else if (e.key==='ArrowLeft') navigateLightbox(-1);
+    else if (e.key==='Escape') closeLightbox();
+    else if (e.key===' ') { e.preventDefault(); toggleFromLightbox(); }
+}
+function navigateLightbox(d) { lbIndex = (lbIndex+d+realPhotos.length)%realPhotos.length; renderLb(); }
+function renderLb() {
+    const p = realPhotos[lbIndex];
+    const img = document.getElementById('lbImg');
+    img.classList.add('loading');
+    img.onload = () => img.classList.remove('loading');
+    img.src = p.thumbnailLink ? p.thumbnailLink.replace(/=s\d+/,'=s1600') : '';
+    img.alt = p.name;
+    document.getElementById('lbName').textContent = p.name;
+    document.getElementById('lbCounter').textContent = `${lbIndex+1} / ${realPhotos.length}`;
+    updateLbBtn();
+}
+function updateLbBtn() {
+    const btn = document.getElementById('lbSelectBtn');
+    if (!btn || !realPhotos[lbIndex]) return;
+    const sel = selectedPhotos.some(p => p.id === realPhotos[lbIndex].id);
+    btn.textContent = sel ? '✓ Terpilih — Batalkan' : '+ Pilih';
+    btn.className = sel ? 'lb-select-btn selected' : 'lb-select-btn';
+}
+function toggleFromLightbox() {
+    const p = realPhotos[lbIndex];
+    const t = p.thumbnailLink ? p.thumbnailLink.replace(/=s\d+/,'=s800') : '';
+    togglePhoto(p.id, p.name, t);
+}
 
-    function renderCartList() {
-        const list = document.getElementById('cartList');
-        if (!selectedPhotos.length) {
-            list.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">Belum ada foto yang dipilih.</div>`; return;
-        }
-        list.innerHTML = selectedPhotos.map(p => `
-            <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 p-3 rounded-xl">
-                <img src="${p.imgUrl}" class="w-20 h-14 object-cover rounded-lg shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLightboxById('${p.id}')" loading="lazy">
-                <div class="flex-1 min-w-0"><p class="text-white font-mono text-xs truncate">${p.fileName}</p></div>
-                <button onclick="togglePhoto('${p.id}','${escapeAttr(p.fileName)}','${escapeAttr(p.imgUrl)}')" class="text-red-400 hover:text-red-500 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs font-bold transition-colors shrink-0">Hapus</button>
-            </div>`).join('');
-    }
+/* ── SUBMIT ──────────────────────────────────── */
+function submitSelection() {
+    if (!selectedPhotos.length) { showToast('Pilih foto terlebih dahulu', 'warn'); return; }
+    const sorted = [...selectedPhotos].sort((a,b) => a.fileName.localeCompare(b.fileName));
+    const msg = `Halo *Dhi Memories* 📸\n\nProyek: *${activeProject.name}*\nJumlah foto dipilih: *${sorted.length} foto*\n\n${sorted.map(p=>`• ${p.fileName}`).join('\n')}\n\nTerima kasih 🙏`;
+    window.open(`https://wa.me/${activeProject.waNumber||'62881027153295'}?text=${encodeURIComponent(msg)}`, '_blank');
+    clearSavedSelection();
+}
 
-    // LIGHTBOX
-    function openLightbox(index) {
-        currentLightboxIndex = index;
-        renderLightbox();
-        document.getElementById('lightbox').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        document.addEventListener('keydown', handleLightboxKey);
-    }
-
-    function openLightboxById(id) {
-        const idx = realPhotos.findIndex(p => p.id === id);
-        if (idx > -1) openLightbox(idx);
-    }
-
-    function closeLightbox() {
-        document.getElementById('lightbox').classList.add('hidden');
-        document.body.style.overflow = '';
-        document.removeEventListener('keydown', handleLightboxKey);
-    }
-
-    function handleLightboxKey(e) {
-        if (e.key === 'ArrowRight') navigateLightbox(1);
-        else if (e.key === 'ArrowLeft') navigateLightbox(-1);
-        else if (e.key === 'Escape') closeLightbox();
-        else if (e.key === ' ') { e.preventDefault(); toggleFromLightbox(); }
-    }
-
-    function navigateLightbox(dir) {
-        currentLightboxIndex = (currentLightboxIndex + dir + realPhotos.length) % realPhotos.length;
-        renderLightbox();
-    }
-
-    function renderLightbox() {
-        const photo = realPhotos[currentLightboxIndex];
-        const hd = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/, '=s1600') : '';
-        document.getElementById('lightboxImg').src = hd;
-        document.getElementById('lightboxImg').alt = photo.name;
-        document.getElementById('lightboxName').textContent = photo.name;
-        document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${realPhotos.length}`;
-        updateLightboxSelectBtn();
-    }
-
-    function updateLightboxSelectBtn() {
-        const btn = document.getElementById('lightboxSelectBtn');
-        if (!btn || !realPhotos[currentLightboxIndex]) return;
-        const isSelected = selectedPhotos.some(p => p.id === realPhotos[currentLightboxIndex].id);
-        if (isSelected) {
-            btn.textContent = '✓ Terpilih — Batalkan';
-            btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-emerald-500 text-white hover:bg-red-500';
-        } else {
-            btn.textContent = '+ Pilih Foto';
-            btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-slate-700 text-white hover:bg-emerald-500';
-        }
-    }
-
-    function toggleFromLightbox() {
-        const photo = realPhotos[currentLightboxIndex];
-        const thumb = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/, '=s800') : '';
-        togglePhoto(photo.id, photo.name, thumb);
-    }
-
-    function submitSelection() {
-        if (!selectedPhotos.length) { showToast('⚠️ Pilih foto terlebih dahulu!', 'warn'); return; }
-        const sorted = [...selectedPhotos].sort((a, b) => a.fileName.localeCompare(b.fileName));
-        const msg = `Halo *Dhi Memories*,\n\nSaya dari proyek: *${activeProject.name}*\nBerikut adalah *${sorted.length} foto* pilihan saya:\n\n${sorted.map(p=>`- ${p.fileName}`).join('\n')}\n\nTerima kasih! 🙏`;
-        const wa = activeProject.waNumber || '62881027153295';
-        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
-        clearSavedSelection();
-    }
-
-    let toastTimeout;
-    function showToast(msg, type = 'success') {
-        const el = document.getElementById('toast');
-        el.textContent = msg;
-        el.style.background = type === 'warn' ? '#f59e0b' : '#334155';
-        el.style.border = type === 'warn' ? '1px solid #d97706' : '1px solid #475569';
-        el.classList.add('toast-show');
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => el.classList.remove('toast-show'), 2200);
-    }
+/* ── TOAST ───────────────────────────────────── */
+let tTimer;
+function showToast(msg, type='') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(tTimer);
+    tTimer = setTimeout(() => el.className = '', 2400);
+}
 </script>
 </body>
 </html>
