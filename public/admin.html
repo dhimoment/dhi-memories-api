@@ -10,87 +10,115 @@
             theme: { extend: { colors: { brand: { primary: '#3b82f6', dark: '#0f172a' } } } }
         }
     </script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body class="bg-[#0f172a] text-slate-300 font-sans min-h-screen">
 
+    <!-- LOGIN -->
     <div id="loginSection" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
-        <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center">
-            <h2 class="text-2xl font-bold text-white mb-6">Admin <span class="text-brand-primary">Login</span></h2>
+        <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center fade-in">
+            <div class="w-14 h-14 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-7 h-7 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-1">Admin <span class="text-brand-primary">Login</span></h2>
+            <p class="text-slate-500 text-sm mb-6">Dhi Memories Control Panel</p>
             <form id="loginForm" class="space-y-4">
-                <input type="text" id="username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Username (admin)" required>
-                <input type="password" id="password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Password (admin)" required>
-                <button type="submit" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg mt-4">Masuk Markas</button>
+                <input type="text" id="username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Username" required>
+                <input type="password" id="password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Password" required>
+                <p id="loginError" class="text-red-400 text-sm hidden">Username atau password salah.</p>
+                <button type="submit" id="loginBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg mt-2">Masuk</button>
             </form>
         </div>
     </div>
 
-    <div id="dashboardSection" style="display: none;" class="p-6">
-        <div class="max-w-6xl mx-auto flex justify-between items-center bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl mb-8">
+    <!-- DASHBOARD -->
+    <div id="dashboardSection" style="display: none;" class="p-6 fade-in">
+        <div class="max-w-6xl mx-auto flex justify-between items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-white">Dhi Memories <span class="text-brand-primary">Admin</span></h1>
-                <p class="text-sm text-slate-400">Pusat kendali database persisten.</p>
+                <h1 class="text-xl font-bold text-white">Dhi Memories <span class="text-brand-primary">Admin</span></h1>
+                <p class="text-xs text-slate-500 mt-0.5">Pusat kendali database persisten</p>
             </div>
-            <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors text-sm font-semibold">Keluar Sistem</button>
+            <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors text-sm font-semibold">Keluar</button>
         </div>
 
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- FORM BUAT PROYEK -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
-                <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-4">Buat Proyek Baru</h2>
+                <h2 class="text-lg font-bold text-white mb-5 border-b border-slate-800 pb-4">Buat Proyek Baru</h2>
                 <form id="projectForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Nama Klien / Acara</label>
-                        <input type="text" id="pName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none" required>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Nama Klien / Acara</label>
+                        <input type="text" id="pName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Link Google Drive</label>
-                        <input type="url" id="pLink" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none" placeholder="https://drive.google.com/..." required>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Link Google Drive</label>
+                        <input type="url" id="pLink" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" placeholder="https://drive.google.com/drive/folders/..." required>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">PIN Akses Klien</label>
-                        <input type="text" id="pPin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none" placeholder="misal: 123456" required>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">PIN Akses Klien</label>
+                        <input type="text" id="pPin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm font-mono" placeholder="misal: 123456" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Maksimal Foto</label>
-                        <input type="number" id="pMax" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none" value="20" required>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Nomor WhatsApp Admin</label>
+                        <input type="text" id="pWa" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm font-mono" placeholder="628xxxx (tanpa + atau spasi)" required>
                     </div>
-                    <button type="submit" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all mt-4">Simpan Proyek</button>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Maksimal Foto Dipilih</label>
+                        <input type="number" id="pMax" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" value="20" min="1" required>
+                    </div>
+                    <p id="formError" class="text-red-400 text-xs hidden"></p>
+                    <button type="submit" id="saveBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all mt-2 text-sm">Simpan Proyek</button>
                 </form>
             </div>
 
+            <!-- DAFTAR PROYEK -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-4">Proyek Aktif (Database)</h2>
+                <div class="flex items-center justify-between mb-5 border-b border-slate-800 pb-4">
+                    <h2 class="text-lg font-bold text-white">Proyek Aktif</h2>
+                    <span id="projectCount" class="text-xs text-slate-500 bg-slate-800 px-3 py-1 rounded-full">0 proyek</span>
+                </div>
                 <div id="projectList" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
 <script>
-const API_URL = 'https://dhi-memories-api.vercel.app/api';
+    // ✅ FIX: Gunakan URL relatif agar berfungsi di localhost DAN Vercel
+    const API_URL = '/api';
     let projects = [];
 
-    // 1. Logika Login
+    // LOGIN
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault(); // Mencegah browser melakukan refresh paksa
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        const err = document.getElementById('loginError');
+        btn.textContent = 'Memeriksa...'; btn.disabled = true; err.classList.add('hidden');
 
         try {
-            const response = await fetch(`${API_URL}/login`, {
+            const res = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
             });
-
-            if (response.ok) {
+            if (res.ok) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
-                fetchProjects(); 
+                fetchProjects();
             } else {
-                alert("Username atau Password Admin salah!");
+                err.classList.remove('hidden');
+                btn.textContent = 'Masuk'; btn.disabled = false;
             }
-        } catch (error) {
-            alert("Gagal terhubung. Pastikan terminal 'nodemon server.js' sedang menyala!");
+        } catch {
+            err.textContent = 'Gagal terhubung ke server.';
+            err.classList.remove('hidden');
+            btn.textContent = 'Masuk'; btn.disabled = false;
         }
     });
 
@@ -100,79 +128,95 @@ const API_URL = 'https://dhi-memories-api.vercel.app/api';
         document.getElementById('loginForm').reset();
     }
 
-    // 2. Mengambil Data
+    // FETCH PROYEK
     async function fetchProjects() {
         try {
-            const response = await fetch(`${API_URL}/projects`);
-            projects = await response.json();
+            const res = await fetch(`${API_URL}/projects`);
+            projects = await res.json();
             renderProjectList();
-        } catch (error) {
-            console.error(error);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // 3. Menyimpan Data
+    // SIMPAN PROYEK
     document.getElementById('projectForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const payload = {
-            name: document.getElementById('pName').value,
-            driveLink: document.getElementById('pLink').value,
-            pin: document.getElementById('pPin').value,
-            maxPhotos: document.getElementById('pMax').value
-        };
+        const btn = document.getElementById('saveBtn');
+        const err = document.getElementById('formError');
+        btn.textContent = 'Menyimpan...'; btn.disabled = true; err.classList.add('hidden');
 
         try {
-            const response = await fetch(`${API_URL}/projects`, {
+            const res = await fetch(`${API_URL}/projects`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    name: document.getElementById('pName').value,
+                    driveLink: document.getElementById('pLink').value,
+                    pin: document.getElementById('pPin').value,
+                    waNumber: document.getElementById('pWa').value,
+                    maxPhotos: document.getElementById('pMax').value
+                })
             });
-
-            if (response.ok) {
+            if (res.ok) {
                 document.getElementById('projectForm').reset();
                 fetchProjects();
             } else {
-                const err = await response.json();
-                alert(`Gagal: ${err.error}`);
+                const data = await res.json();
+                err.textContent = data.error;
+                err.classList.remove('hidden');
             }
-        } catch (error) {
-            alert("Kesalahan jaringan saat menyimpan.");
+        } catch {
+            err.textContent = 'Kesalahan jaringan.';
+            err.classList.remove('hidden');
+        } finally {
+            btn.textContent = 'Simpan Proyek'; btn.disabled = false;
         }
     });
 
-    // 4. Merender Daftar
+    // RENDER DAFTAR
     function renderProjectList() {
         const list = document.getElementById('projectList');
+        const count = document.getElementById('projectCount');
+        count.textContent = `${projects.length} proyek`;
+
         if (projects.length === 0) {
-            list.innerHTML = `<div class="text-center py-12 bg-slate-950/50 rounded-xl border border-dashed border-slate-800"><p class="text-slate-500">Belum ada data di database.</p></div>`;
+            list.innerHTML = `<div class="text-center py-12 bg-slate-950/50 rounded-xl border border-dashed border-slate-800">
+                <svg class="w-10 h-10 text-slate-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                <p class="text-slate-600 text-sm">Belum ada proyek.</p>
+            </div>`;
             return;
         }
-        
+
         list.innerHTML = projects.map(p => `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition-colors">
-                <div class="w-full sm:w-3/4 overflow-hidden">
-                    <h3 class="font-bold text-white text-lg">${p.name}</h3>
-                    <p class="text-xs text-brand-primary truncate mt-1 hover:underline"><a href="${p.driveLink}" target="_blank">${p.driveLink}</a></p>
-                    <div class="flex gap-4 mt-2 text-xs text-slate-400">
-                        <p>PIN: <span class="text-emerald-400 font-mono">${p.pin}</span></p>
-                        <p>Kuota: ${p.maxPhotos} foto</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition-colors gap-3">
+                <div class="overflow-hidden flex-1">
+                    <h3 class="font-bold text-white">${p.name}</h3>
+                    <a href="${p.driveLink}" target="_blank" class="text-xs text-brand-primary truncate block mt-0.5 hover:underline">${p.driveLink}</a>
+                    <div class="flex flex-wrap gap-3 mt-2">
+                        <span class="text-xs text-slate-400">PIN: <span class="text-emerald-400 font-mono font-bold">${p.pin}</span></span>
+                        <span class="text-xs text-slate-400">Kuota: <span class="text-slate-200">${p.maxPhotos} foto</span></span>
+                        <span class="text-xs text-slate-400">WA: <span class="text-slate-200">${p.waNumber || '-'}</span></span>
                     </div>
                 </div>
-                <button class="mt-4 sm:mt-0 px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors text-sm font-semibold whitespace-nowrap" onclick="deleteProject('${p.id}')">Hapus</button>
+                <div class="flex gap-2 shrink-0">
+                    <button onclick="copyPin('${p.pin}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-colors">Salin PIN</button>
+                    <button onclick="deleteProject('${p.id}')" class="px-3 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg text-xs font-semibold transition-colors">Hapus</button>
+                </div>
             </div>
         `).join('');
     }
 
-    // 5. Menghapus Data
+    function copyPin(pin) {
+        navigator.clipboard.writeText(pin);
+        alert(`PIN "${pin}" berhasil disalin!`);
+    }
+
+    // HAPUS PROYEK
     async function deleteProject(id) {
-        if(confirm("Yakin hapus dari database permanen?")) {
-            try {
-                const response = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE' });
-                if (response.ok) fetchProjects();
-            } catch (error) {
-                alert("Gagal menghapus proyek.");
-            }
-        }
+        if (!confirm('Yakin hapus proyek ini dari database?')) return;
+        try {
+            const res = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE' });
+            if (res.ok) fetchProjects();
+        } catch { alert('Gagal menghapus proyek.'); }
     }
 </script>
 </body>

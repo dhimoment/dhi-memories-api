@@ -9,10 +9,11 @@ datasource db {
 }
 
 model Project {
-  id           String   @id @default(uuid())
-  name         String
-  driveLink    String
-  pin          String   @unique
-  maxPhotos    Int      @default(20)
-  createdAt    DateTime @default(now())
+  id         String   @id @default(uuid())
+  name       String
+  driveLink  String
+  pin        String   @unique
+  maxPhotos  Int      @default(20)
+  waNumber   String   @default("")
+  createdAt  DateTime @default(now())
 }
