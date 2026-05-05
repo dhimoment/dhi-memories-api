@@ -13,28 +13,16 @@ app.use(express.json());
 // Serve file HTML dari folder public/
 app.use(express.static(path.join(__dirname, '../public')));
 
-// ✅ FIX: Parse private key dengan benar dari Vercel env vars
-function getPrivateKey() {
-    const key = process.env.GOOGLE_PRIVATE_KEY;
-    if (!key) return undefined;
-    // Vercel kadang menyimpan \n sebagai literal string, kadang sebagai newline asli
-    // Bersihkan dua kali untuk handle keduanya
-    return key
-        .replace(/\\\\n/g, '\n')  // \\n → \n
-        .replace(/\\n/g, '\n')    // \n  → newline
-        .trim();
-}
+// ✅ FIX: Baca seluruh credentials dari 1 env var (menghindari masalah format \n)
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
 
 const auth = new google.auth.GoogleAuth({
-    credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: getPrivateKey(),
-    },
+    credentials: credentials,
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
 });
 const drive = google.drive({ version: 'v3', auth });
 
-// Root → kirim index.html
+// Root
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
@@ -42,9 +30,7 @@ app.get('/', (req, res) => {
 // GET semua proyek
 app.get('/api/projects', async (req, res) => {
     try {
-        const projects = await prisma.project.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
+        const projects = await prisma.project.findMany({ orderBy: { createdAt: 'desc' } });
         res.json(projects);
     } catch (e) {
         console.error(e);
@@ -55,17 +41,11 @@ app.get('/api/projects', async (req, res) => {
 // GET foto dari Google Drive berdasarkan PIN
 app.get('/api/projects/:pin/photos', async (req, res) => {
     try {
-        const project = await prisma.project.findUnique({
-            where: { pin: req.params.pin }
-        });
-        if (!project) {
-            return res.status(404).json({ error: 'PIN Salah atau Proyek tidak ditemukan' });
-        }
+        const project = await prisma.project.findUnique({ where: { pin: req.params.pin } });
+        if (!project) return res.status(404).json({ error: 'PIN Salah atau Proyek tidak ditemukan' });
 
         const match = project.driveLink.match(/folders\/([a-zA-Z0-9_-]+)/);
-        if (!match) {
-            return res.status(400).json({ error: 'Link Drive tidak valid' });
-        }
+        if (!match) return res.status(400).json({ error: 'Link Drive tidak valid' });
 
         const folderId = match[1];
         const response = await drive.files.list({
@@ -83,29 +63,21 @@ app.get('/api/projects/:pin/photos', async (req, res) => {
 
 // POST login admin
 app.post('/api/login', (req, res) => {
-    if (req.body.username === 'admin' && req.body.password === 'admin') {
-        res.json({ success: true });
-    } else {
-        res.status(401).json({ error: 'Unauthorized' });
-    }
+    if (req.body.username === 'admin' && req.body.password === 'admin') res.json({ success: true });
+    else res.status(401).json({ error: 'Unauthorized' });
 });
 
 // POST buat proyek baru
 app.post('/api/projects', async (req, res) => {
     try {
         const { name, driveLink, pin, maxPhotos } = req.body;
-        if (!name || !driveLink || !pin) {
-            return res.status(400).json({ error: 'Field name, driveLink, dan pin wajib diisi' });
-        }
+        if (!name || !driveLink || !pin) return res.status(400).json({ error: 'Field wajib diisi' });
         const project = await prisma.project.create({
             data: { name, driveLink, pin, maxPhotos: Number(maxPhotos) || 20 }
         });
         res.json(project);
     } catch (e) {
-        console.error(e);
-        if (e.code === 'P2002') {
-            return res.status(400).json({ error: 'PIN sudah digunakan, pilih PIN lain' });
-        }
+        if (e.code === 'P2002') return res.status(400).json({ error: 'PIN sudah digunakan' });
         res.status(500).json({ error: 'Gagal menyimpan proyek' });
     }
 });
@@ -116,7 +88,6 @@ app.delete('/api/projects/:id', async (req, res) => {
         await prisma.project.delete({ where: { id: req.params.id } });
         res.json({ success: true });
     } catch (e) {
-        console.error(e);
         res.status(500).json({ error: 'Gagal menghapus proyek' });
     }
 });
