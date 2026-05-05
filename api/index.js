@@ -10,16 +10,25 @@ const prisma = new PrismaClient();
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'DELETE'] }));
 app.use(express.json());
 
-// ✅ Serve file HTML dari folder public/
+// Serve file HTML dari folder public/
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Google Drive auth via Environment Variables
+// ✅ FIX: Parse private key dengan benar dari Vercel env vars
+function getPrivateKey() {
+    const key = process.env.GOOGLE_PRIVATE_KEY;
+    if (!key) return undefined;
+    // Vercel kadang menyimpan \n sebagai literal string, kadang sebagai newline asli
+    // Bersihkan dua kali untuk handle keduanya
+    return key
+        .replace(/\\\\n/g, '\n')  // \\n → \n
+        .replace(/\\n/g, '\n')    // \n  → newline
+        .trim();
+}
+
 const auth = new google.auth.GoogleAuth({
     credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY
-            ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-            : undefined,
+        private_key: getPrivateKey(),
     },
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
 });
