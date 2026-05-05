@@ -3,221 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhi Memories - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { brand: { primary: '#3b82f6', dark: '#0f172a' } } } }
-        }
-    </script>
+    <title>Dhi Memories — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        :root {
+            --gold: #c9a96e;
+            --gold-light: #e8d5b0;
+            --gold-dim: #8a6e45;
+            --bg: #0a0908;
+            --surface: #131110;
+            --surface2: #1c1916;
+            --border: #2a2520;
+            --text: #f0ebe3;
+            --muted: #7a7068;
+            --red: #f87171;
+            --green: #4ade80;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.4;
+        }
+
+        /* LOGIN */
+        #loginSection {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+        .bg-orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(120px); }
+        .orb-1 { width: 350px; height: 350px; background: rgba(201,169,110,0.06); top: 15%; right: 20%; }
+
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: revealUp 0.7s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .login-card::before, .login-card::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-color: var(--gold-dim);
+            border-style: solid;
+        }
+        .login-card::before { top:-1px;left:-1px;border-width:1px 0 0 1px; }
+        .login-card::after  { bottom:-1px;right:-1px;border-width:0 1px 1px 0; }
+
+        .brand-mark { display:flex;flex-direction:column;align-items:center;gap:0;line-height:1; }
+        .brand-mark .dhi { font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:400;color:var(--text);letter-spacing:0.12em; }
+        .brand-mark .divider { width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:7px 0 6px; }
+        .brand-mark .memories { font-family:'DM Sans',sans-serif;font-size:0.6rem;font-weight:400;letter-spacing:0.45em;color:var(--gold);text-transform:uppercase; }
+
+        .login-role { font-size:0.72rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-top:1.75rem;margin-bottom:1.5rem; }
+
+        .field { margin-bottom: 0.875rem; }
+        .field input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.25s;
+        }
+        .field input:focus { border-color: var(--gold-dim); }
+        .field input::placeholder { color: var(--muted); }
+
+        .btn-primary {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.875rem;
+            background: transparent;
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            color: var(--gold-light);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .btn-primary:hover { background: var(--gold-dim); color: var(--bg); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .form-error { font-size: 0.78rem; color: var(--red); margin-top: 0.5rem; display: none; }
+
+        /* DASHBOARD */
+        #dashboardSection { display: none; }
+
+        .dash-header {
+            background: rgba(10,9,8,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+        .dash-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dash-logo { font-family: 'Playfair Display', serif; font-size: 1.15rem; letter-spacing: 0.08em; color: var(--text); }
+        .dash-logo em { color: var(--gold); font-style: italic; }
+        .dash-role { font-size: 0.68rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-top: 0.15rem; }
+
+        .btn-logout {
+            padding: 0.45rem 1.1rem;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.2);
+            border-radius: 3px;
+            color: var(--red);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+        .btn-logout:hover { opacity: 1; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.4); }
+
+        .dash-body { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media(min-width:900px) { .dash-body { grid-template-columns: 340px 1fr; } }
+
+        /* PANEL */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+        }
+        .panel::before, .panel::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--border);
+            border-style: solid;
+        }
+        .panel::before { top:-1px;left:-1px;border-width:1px 0 0 1px;border-color:var(--gold-dim); }
+        .panel::after  { bottom:-1px;right:-1px;border-width:0 1px 1px 0;border-color:var(--gold-dim); }
+
+        .panel-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .panel-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--text); font-weight: 400; }
+        .panel-sub { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+
+        .panel-body { padding: 1.5rem; }
+
+        /* FORM */
+        .form-label { display: block; font-size: 0.68rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.45rem; }
+        .form-field {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.65rem 0.875rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.25s;
+            margin-bottom: 1rem;
+        }
+        .form-field:focus { border-color: var(--gold-dim); }
+        .form-field::placeholder { color: var(--border); }
+
+        .btn-save {
+            width: 100%;
+            padding: 0.8rem;
+            background: transparent;
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            color: var(--gold-light);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .btn-save:hover { background: var(--gold-dim); color: var(--bg); }
+        .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* PROJECT LIST */
+        .project-count { font-size: 0.68rem; letter-spacing: 0.15em; color: var(--muted); background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 2px; border: 1px solid var(--border); }
+
+        .project-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.6rem;
+            transition: border-color 0.2s;
+        }
+        .project-card:hover { border-color: rgba(201,169,110,0.2); }
+        .project-card:last-child { margin-bottom: 0; }
+
+        .project-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--text); font-weight: 400; margin-bottom: 0.3rem; }
+        .project-link { font-size: 0.7rem; color: var(--gold-dim); text-decoration: none; letter-spacing: 0.03em; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .project-link:hover { color: var(--gold); text-decoration: underline; }
+        .project-meta { display: flex; gap: 1.25rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .meta-item { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.35rem; }
+        .meta-val { color: var(--gold-light); font-weight: 500; }
+        .meta-pin { font-family: 'DM Sans', sans-serif; color: var(--gold); font-weight: 500; letter-spacing: 0.15em; }
+
+        .project-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: flex-start; }
+        .btn-copy {
+            padding: 0.3rem 0.7rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--muted);
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-copy:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+        .btn-del {
+            padding: 0.3rem 0.7rem;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.15);
+            border-radius: 2px;
+            color: rgba(248,113,113,0.6);
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-del:hover { border-color: var(--red); color: var(--red); }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            border: 1px dashed var(--border);
+            border-radius: 3px;
+        }
+        .empty-line { display: block; width: 40px; height: 1px; background: var(--gold-dim); margin: 0.75rem auto 0.75rem; opacity: 0.4; }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translate(-50%, 12px);
+            z-index: 70;
+            padding: 0.6rem 1.25rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            color: var(--text);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        #toast.show { opacity: 1; transform: translate(-50%, 0); }
+        #toast.gold { border-color: var(--gold-dim); color: var(--gold-light); }
+
+        @keyframes revealUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-300 font-sans min-h-screen">
+<body>
 
-    <!-- LOGIN -->
-    <div id="loginSection" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
-        <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center fade-in">
-            <div class="w-14 h-14 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg class="w-7 h-7 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            </div>
-            <h2 class="text-2xl font-bold text-white mb-1">Admin <span class="text-brand-primary">Login</span></h2>
-            <p class="text-slate-500 text-sm mb-6">Dhi Memories Control Panel</p>
-            <form id="loginForm" class="space-y-4">
-                <input type="text" id="username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Username" required>
-                <input type="password" id="password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-primary focus:outline-none" placeholder="Password" required>
-                <p id="loginError" class="text-red-400 text-sm hidden">Username atau password salah.</p>
-                <button type="submit" id="loginBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg mt-2">Masuk</button>
-            </form>
+<!-- LOGIN -->
+<section id="loginSection">
+    <div class="bg-orb orb-1"></div>
+    <div class="login-card">
+        <div class="brand-mark">
+            <span class="dhi">dhi</span>
+            <div class="divider"></div>
+            <span class="memories">memories</span>
         </div>
+        <p class="login-role">Administrator</p>
+        <form id="loginForm">
+            <div class="field"><input type="text" id="username" placeholder="Username" required></div>
+            <div class="field"><input type="password" id="password" placeholder="Password" required></div>
+            <p id="loginError" class="form-error"></p>
+            <button type="submit" id="loginBtn" class="btn-primary">Masuk</button>
+        </form>
     </div>
+</section>
 
-    <!-- DASHBOARD -->
-    <div id="dashboardSection" style="display: none;" class="p-6 fade-in">
-        <div class="max-w-6xl mx-auto flex justify-between items-center bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl mb-8">
+<!-- DASHBOARD -->
+<div id="dashboardSection">
+    <header class="dash-header">
+        <div class="dash-header-inner">
             <div>
-                <h1 class="text-xl font-bold text-white">Dhi Memories <span class="text-brand-primary">Admin</span></h1>
-                <p class="text-xs text-slate-500 mt-0.5">Pusat kendali database persisten</p>
+                <div class="dash-logo">dhi <em>memories</em></div>
+                <div class="dash-role">Admin Panel</div>
             </div>
-            <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors text-sm font-semibold">Keluar</button>
+            <button class="btn-logout" onclick="logout()">Keluar</button>
         </div>
+    </header>
 
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- FORM BUAT PROYEK -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
-                <h2 class="text-lg font-bold text-white mb-5 border-b border-slate-800 pb-4">Buat Proyek Baru</h2>
-                <form id="projectForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Nama Klien / Acara</label>
-                        <input type="text" id="pName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Link Google Drive</label>
-                        <input type="url" id="pLink" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" placeholder="https://drive.google.com/drive/folders/..." required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">PIN Akses Klien</label>
-                        <input type="text" id="pPin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm font-mono" placeholder="misal: 123456" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Nomor WhatsApp Admin</label>
-                        <input type="text" id="pWa" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm font-mono" placeholder="628xxxx (tanpa + atau spasi)" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Maksimal Foto Dipilih</label>
-                        <input type="number" id="pMax" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:ring-1 focus:ring-brand-primary focus:outline-none text-sm" value="20" min="1" required>
-                    </div>
-                    <p id="formError" class="text-red-400 text-xs hidden"></p>
-                    <button type="submit" id="saveBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all mt-2 text-sm">Simpan Proyek</button>
+    <div class="dash-body">
+        <!-- FORM KIRI -->
+        <div class="panel" style="height:fit-content">
+            <div class="panel-header">
+                <span class="panel-title">Proyek Baru</span>
+            </div>
+            <div class="panel-body">
+                <form id="projectForm">
+                    <label class="form-label">Nama Klien / Acara</label>
+                    <input type="text" id="pName" class="form-field" placeholder="Pernikahan Budi & Siti" required>
+
+                    <label class="form-label">Link Google Drive</label>
+                    <input type="url" id="pLink" class="form-field" placeholder="https://drive.google.com/drive/folders/..." required>
+
+                    <label class="form-label">PIN Akses Klien</label>
+                    <input type="text" id="pPin" class="form-field" placeholder="123456" required style="letter-spacing:.15em;font-family:'DM Sans',sans-serif">
+
+                    <label class="form-label">Nomor WhatsApp</label>
+                    <input type="text" id="pWa" class="form-field" placeholder="628xxxx (tanpa + atau spasi)" required>
+
+                    <label class="form-label">Maksimal Foto</label>
+                    <input type="number" id="pMax" class="form-field" value="20" min="1" required>
+
+                    <p id="formError" class="form-error"></p>
+                    <button type="submit" id="saveBtn" class="btn-save">Simpan Proyek</button>
                 </form>
             </div>
+        </div>
 
-            <!-- DAFTAR PROYEK -->
-            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div class="flex items-center justify-between mb-5 border-b border-slate-800 pb-4">
-                    <h2 class="text-lg font-bold text-white">Proyek Aktif</h2>
-                    <span id="projectCount" class="text-xs text-slate-500 bg-slate-800 px-3 py-1 rounded-full">0 proyek</span>
-                </div>
-                <div id="projectList" class="space-y-3"></div>
+        <!-- LIST KANAN -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Proyek Aktif</span>
+                <span class="project-count" id="projectCount">0 proyek</span>
             </div>
+            <div class="panel-body" id="projectList"></div>
         </div>
     </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-    // ✅ FIX: Gunakan URL relatif agar berfungsi di localhost DAN Vercel
-    const API_URL = '/api';
-    let projects = [];
+const API_URL = '/api';
+let projects = [];
 
-    // LOGIN
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('loginBtn');
-        const err = document.getElementById('loginError');
-        btn.textContent = 'Memeriksa...'; btn.disabled = true; err.classList.add('hidden');
-
-        try {
-            const res = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: document.getElementById('username').value,
-                    password: document.getElementById('password').value
-                })
-            });
-            if (res.ok) {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('dashboardSection').style.display = 'block';
-                fetchProjects();
-            } else {
-                err.classList.remove('hidden');
-                btn.textContent = 'Masuk'; btn.disabled = false;
-            }
-        } catch {
-            err.textContent = 'Gagal terhubung ke server.';
-            err.classList.remove('hidden');
+/* LOGIN */
+document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    btn.textContent = 'Memeriksa...'; btn.disabled = true; err.style.display = 'none';
+    try {
+        const res = await fetch(`${API_URL}/login`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value })
+        });
+        if (res.ok) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            fetchProjects();
+        } else {
+            err.textContent = 'Username atau password salah.'; err.style.display = 'block';
             btn.textContent = 'Masuk'; btn.disabled = false;
         }
-    });
-
-    function logout() {
-        document.getElementById('dashboardSection').style.display = 'none';
-        document.getElementById('loginSection').style.display = 'flex';
-        document.getElementById('loginForm').reset();
+    } catch {
+        err.textContent = 'Gagal terhubung ke server.'; err.style.display = 'block';
+        btn.textContent = 'Masuk'; btn.disabled = false;
     }
+});
 
-    // FETCH PROYEK
-    async function fetchProjects() {
-        try {
-            const res = await fetch(`${API_URL}/projects`);
-            projects = await res.json();
-            renderProjectList();
-        } catch (e) { console.error(e); }
+function logout() {
+    document.getElementById('dashboardSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'flex';
+    document.getElementById('loginForm').reset();
+}
+
+/* FETCH */
+async function fetchProjects() {
+    try {
+        const res = await fetch(`${API_URL}/projects`);
+        projects = await res.json();
+        renderList();
+    } catch(e) { console.error(e); }
+}
+
+/* SAVE */
+document.getElementById('projectForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    const err = document.getElementById('formError');
+    btn.textContent = 'Menyimpan...'; btn.disabled = true; err.style.display = 'none';
+    try {
+        const res = await fetch(`${API_URL}/projects`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                name: document.getElementById('pName').value,
+                driveLink: document.getElementById('pLink').value,
+                pin: document.getElementById('pPin').value,
+                waNumber: document.getElementById('pWa').value,
+                maxPhotos: document.getElementById('pMax').value
+            })
+        });
+        if (res.ok) { document.getElementById('projectForm').reset(); fetchProjects(); showToast('Proyek berhasil disimpan', 'gold'); }
+        else { const d = await res.json(); err.textContent = d.error; err.style.display = 'block'; }
+    } catch { err.textContent = 'Kesalahan jaringan.'; err.style.display = 'block'; }
+    finally { btn.textContent = 'Simpan Proyek'; btn.disabled = false; }
+});
+
+/* RENDER LIST */
+function renderList() {
+    const el = document.getElementById('projectList');
+    document.getElementById('projectCount').textContent = `${projects.length} proyek`;
+    if (!projects.length) {
+        el.innerHTML = `<div class="empty-state"><span class="empty-line"></span>Belum ada proyek yang dibuat.</div>`; return;
     }
-
-    // SIMPAN PROYEK
-    document.getElementById('projectForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('saveBtn');
-        const err = document.getElementById('formError');
-        btn.textContent = 'Menyimpan...'; btn.disabled = true; err.classList.add('hidden');
-
-        try {
-            const res = await fetch(`${API_URL}/projects`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: document.getElementById('pName').value,
-                    driveLink: document.getElementById('pLink').value,
-                    pin: document.getElementById('pPin').value,
-                    waNumber: document.getElementById('pWa').value,
-                    maxPhotos: document.getElementById('pMax').value
-                })
-            });
-            if (res.ok) {
-                document.getElementById('projectForm').reset();
-                fetchProjects();
-            } else {
-                const data = await res.json();
-                err.textContent = data.error;
-                err.classList.remove('hidden');
-            }
-        } catch {
-            err.textContent = 'Kesalahan jaringan.';
-            err.classList.remove('hidden');
-        } finally {
-            btn.textContent = 'Simpan Proyek'; btn.disabled = false;
-        }
-    });
-
-    // RENDER DAFTAR
-    function renderProjectList() {
-        const list = document.getElementById('projectList');
-        const count = document.getElementById('projectCount');
-        count.textContent = `${projects.length} proyek`;
-
-        if (projects.length === 0) {
-            list.innerHTML = `<div class="text-center py-12 bg-slate-950/50 rounded-xl border border-dashed border-slate-800">
-                <svg class="w-10 h-10 text-slate-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-                <p class="text-slate-600 text-sm">Belum ada proyek.</p>
-            </div>`;
-            return;
-        }
-
-        list.innerHTML = projects.map(p => `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition-colors gap-3">
-                <div class="overflow-hidden flex-1">
-                    <h3 class="font-bold text-white">${p.name}</h3>
-                    <a href="${p.driveLink}" target="_blank" class="text-xs text-brand-primary truncate block mt-0.5 hover:underline">${p.driveLink}</a>
-                    <div class="flex flex-wrap gap-3 mt-2">
-                        <span class="text-xs text-slate-400">PIN: <span class="text-emerald-400 font-mono font-bold">${p.pin}</span></span>
-                        <span class="text-xs text-slate-400">Kuota: <span class="text-slate-200">${p.maxPhotos} foto</span></span>
-                        <span class="text-xs text-slate-400">WA: <span class="text-slate-200">${p.waNumber || '-'}</span></span>
-                    </div>
-                </div>
-                <div class="flex gap-2 shrink-0">
-                    <button onclick="copyPin('${p.pin}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-colors">Salin PIN</button>
-                    <button onclick="deleteProject('${p.id}')" class="px-3 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg text-xs font-semibold transition-colors">Hapus</button>
+    el.innerHTML = projects.map(p => `
+        <div class="project-card">
+            <div style="overflow:hidden;flex:1">
+                <div class="project-name">${p.name}</div>
+                <a href="${p.driveLink}" target="_blank" class="project-link">${p.driveLink}</a>
+                <div class="project-meta">
+                    <span class="meta-item">PIN <span class="meta-pin">${p.pin}</span></span>
+                    <span class="meta-item">Kuota <span class="meta-val">${p.maxPhotos} foto</span></span>
+                    <span class="meta-item">WA <span class="meta-val">${p.waNumber || '—'}</span></span>
                 </div>
             </div>
-        `).join('');
-    }
+            <div class="project-actions">
+                <button class="btn-copy" onclick="copyPin('${p.pin}')">Salin PIN</button>
+                <button class="btn-del" onclick="deleteProject('${p.id}')">Hapus</button>
+            </div>
+        </div>`).join('');
+}
 
-    function copyPin(pin) {
-        navigator.clipboard.writeText(pin);
-        alert(`PIN "${pin}" berhasil disalin!`);
-    }
+function copyPin(pin) {
+    navigator.clipboard.writeText(pin);
+    showToast(`PIN "${pin}" disalin`, 'gold');
+}
 
-    // HAPUS PROYEK
-    async function deleteProject(id) {
-        if (!confirm('Yakin hapus proyek ini dari database?')) return;
-        try {
-            const res = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE' });
-            if (res.ok) fetchProjects();
-        } catch { alert('Gagal menghapus proyek.'); }
-    }
+async function deleteProject(id) {
+    if (!confirm('Yakin hapus proyek ini?')) return;
+    try {
+        const res = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE' });
+        if (res.ok) { fetchProjects(); showToast('Proyek dihapus'); }
+    } catch { alert('Gagal menghapus.'); }
+}
+
+/* TOAST */
+let tTimer;
+function showToast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(tTimer);
+    tTimer = setTimeout(() => el.className = '', 2400);
+}
 </script>
 </body>
 </html>
