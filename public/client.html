@@ -10,25 +10,25 @@
     </script>
     <style>
         .photo-card { transition: all 0.2s ease; border: 3px solid transparent; cursor: pointer; }
-        .photo-card:hover { border-color: #475569; transform: translateY(-2px); }
+        .photo-card:hover .overlay-actions { opacity: 1; }
         .photo-card.selected { border-color: #10b981; transform: scale(0.96); }
         .selected-badge { display: none; }
         .photo-card.selected .selected-badge { display: flex; }
-
-        /* Skeleton loading */
+        .overlay-actions { opacity: 0; transition: opacity 0.2s ease; }
         .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* Modal */
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
         #cartModal { transition: opacity 0.3s ease; }
         #cartModal.hidden { opacity: 0; pointer-events: none; }
         #cartContent { transition: transform 0.3s ease; }
         #cartModal.hidden #cartContent { transform: translateY(100%); }
         #cartModal:not(.hidden) #cartContent { transform: translateY(0); }
-
-        /* Fade in */
+        #lightbox { transition: opacity 0.25s ease; }
+        #lightbox.hidden { opacity: 0; pointer-events: none; }
+        #lightbox:not(.hidden) { opacity: 1; }
         .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .toast-show { opacity: 1 !important; transform: translate(-50%, 0) !important; }
+        #toast { opacity: 0; transform: translate(-50%, 16px); transition: all 0.3s ease; pointer-events: none; }
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-300 font-sans min-h-screen selection:bg-brand-primary selection:text-white">
@@ -52,28 +52,36 @@
 
     <!-- GALLERY SECTION -->
     <div id="gallerySection" style="display: none;" class="pb-40">
-        <!-- Header sticky -->
         <div class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="overflow-hidden">
                     <h1 class="text-base md:text-lg font-bold text-white truncate" id="projectNameUI">Memuat...</h1>
-                    <p class="text-xs text-slate-500" id="photoCountUI">Memuat foto...</p>
+                    <p class="text-xs text-slate-500" id="photoCountUI"></p>
                 </div>
                 <span id="counterUI" class="px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3">0 / 0</span>
             </div>
         </div>
 
-        <!-- Info bar -->
-        <div class="max-w-7xl mx-auto px-4 mt-4 mb-6">
-            <div class="bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-center py-3 px-4 rounded-xl text-sm font-medium" id="instructionUI">
-                Menghubungkan ke server...
+        <div class="max-w-7xl mx-auto px-4 mt-4 mb-4">
+            <div class="bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-center py-3 px-4 rounded-xl text-sm font-medium" id="instructionUI">Menghubungkan...</div>
+        </div>
+
+        <!-- RESTORE BANNER -->
+        <div id="restoreBanner" class="hidden max-w-7xl mx-auto px-4 mb-4">
+            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 py-3 px-4 rounded-xl text-sm flex items-center justify-between gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span id="restoreText"></span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="restoreSelection()" class="px-3 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-colors">Pulihkan</button>
+                    <button onclick="clearSavedSelection()" class="px-3 py-1 bg-slate-700 text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-600 transition-colors">Abaikan</button>
+                </div>
             </div>
         </div>
 
-        <!-- Photo grid -->
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4" id="photoGrid"></div>
 
-        <!-- Bottom bar -->
         <div class="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-4 z-40">
             <div class="max-w-7xl mx-auto flex justify-center gap-3">
                 <button onclick="openCart()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-3 px-5 rounded-xl transition-all flex items-center gap-2 text-sm">
@@ -106,115 +114,171 @@
         </div>
     </div>
 
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col">
+        <div class="flex items-center justify-between px-4 py-3 shrink-0 bg-black/40">
+            <p id="lightboxName" class="text-slate-300 text-sm font-mono truncate flex-1 mr-4"></p>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="lightboxSelectBtn" onclick="toggleFromLightbox()" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-slate-700 text-white hover:bg-emerald-500">+ Pilih Foto</button>
+                <button onclick="closeLightbox()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-300 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 flex items-center justify-center relative overflow-hidden px-12">
+            <button onclick="navigateLightbox(-1)" class="absolute left-2 md:left-4 p-3 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <img id="lightboxImg" src="" alt="" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl select-none">
+            <button onclick="navigateLightbox(1)" class="absolute right-2 md:right-4 p-3 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors z-10">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+        <div class="py-3 text-center shrink-0">
+            <p id="lightboxCounter" class="text-slate-500 text-xs"></p>
+            <p class="text-slate-600 text-xs mt-1">← → navigasi &nbsp;|&nbsp; Space = pilih &nbsp;|&nbsp; Esc = tutup</p>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-24 left-1/2 z-[70] px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl text-white bg-slate-700 border border-slate-600 whitespace-nowrap"></div>
+
 <script>
-    // ✅ FIX: URL relatif — otomatis benar di localhost maupun Vercel
     const API_URL = '/api';
     let activeProject = null;
     let realPhotos = [];
     let selectedPhotos = [];
+    let currentLightboxIndex = 0;
+    let savedSelectionData = null;
 
-    // SUBMIT PIN
+    function storageKey(pin) { return `dhi_sel_${pin}`; }
+    function saveSelection() { if (activeProject) localStorage.setItem(storageKey(activeProject.pin), JSON.stringify(selectedPhotos)); }
+    function loadSavedSelection(pin) { try { const r = localStorage.getItem(storageKey(pin)); return r ? JSON.parse(r) : null; } catch { return null; } }
+
+    function clearSavedSelection() {
+        if (activeProject) localStorage.removeItem(storageKey(activeProject.pin));
+        document.getElementById('restoreBanner').classList.add('hidden');
+        savedSelectionData = null;
+    }
+
+    function restoreSelection() {
+        if (!savedSelectionData) return;
+        let count = 0;
+        savedSelectionData.forEach(saved => {
+            if (selectedPhotos.find(p => p.id === saved.id)) return;
+            if (selectedPhotos.length >= activeProject.maxPhotos) return;
+            const photo = realPhotos.find(p => p.id === saved.id);
+            if (!photo) return;
+            selectedPhotos.push(saved);
+            const el = document.getElementById(`photo-${saved.id}`);
+            if (el) el.classList.add('selected');
+            count++;
+        });
+        updateCounter();
+        renderCartList();
+        saveSelection();
+        document.getElementById('restoreBanner').classList.add('hidden');
+        savedSelectionData = null;
+        showToast(`✅ ${count} foto berhasil dipulihkan`);
+    }
+
+    // PIN FORM
     document.getElementById('pinForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const pin = document.getElementById('clientPin').value.trim();
         const btn = document.getElementById('submitBtn');
         const err = document.getElementById('pinError');
-
         btn.textContent = 'Memeriksa...'; btn.disabled = true;
         err.classList.add('hidden');
-
         try {
             const res = await fetch(`${API_URL}/projects/${pin}/photos`);
             const data = await res.json();
-
             if (res.ok) {
                 activeProject = data.project;
-                // Sort foto berdasarkan nama
                 realPhotos = data.photos.sort((a, b) => a.name.localeCompare(b.name));
-
                 document.getElementById('pinSection').style.display = 'none';
                 document.getElementById('gallerySection').style.display = 'block';
                 document.getElementById('projectNameUI').textContent = activeProject.name;
                 document.getElementById('photoCountUI').textContent = `${realPhotos.length} foto tersedia`;
                 document.getElementById('counterUI').textContent = `0 / ${activeProject.maxPhotos}`;
                 document.getElementById('instructionUI').textContent =
-                    `Ditemukan ${realPhotos.length} foto. Pilih maksimal ${activeProject.maxPhotos} foto terbaik Anda.`;
-
+                    `${realPhotos.length} foto ditemukan. Pilih hingga ${activeProject.maxPhotos} foto terbaik Anda. Klik foto untuk lihat full.`;
                 renderPhotos();
+                const saved = loadSavedSelection(pin);
+                if (saved && saved.length > 0) {
+                    savedSelectionData = saved;
+                    document.getElementById('restoreText').textContent =
+                        `Ada ${saved.length} foto yang sudah dipilih sebelumnya dan belum dikirim.`;
+                    document.getElementById('restoreBanner').classList.remove('hidden');
+                }
             } else {
                 err.textContent = data.error || 'PIN tidak valid.';
                 err.classList.remove('hidden');
                 btn.textContent = 'Buka Galeri'; btn.disabled = false;
             }
         } catch {
-            err.textContent = 'Gagal terhubung ke server. Coba lagi.';
+            err.textContent = 'Gagal terhubung ke server.';
             err.classList.remove('hidden');
             btn.textContent = 'Buka Galeri'; btn.disabled = false;
         }
     });
 
-    // RENDER FOTO
+    function escapeAttr(str) { return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
     function renderPhotos() {
         const grid = document.getElementById('photoGrid');
-
-        if (realPhotos.length === 0) {
-            grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500">
-                <svg class="w-12 h-12 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <p>Tidak ada foto ditemukan di folder ini.</p>
-            </div>`;
+        if (!realPhotos.length) {
+            grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500"><p>Tidak ada foto ditemukan.</p></div>`;
             return;
         }
-
-        grid.innerHTML = realPhotos.map(photo => {
-            const thumb = photo.thumbnailLink
-                ? photo.thumbnailLink.replace(/=s\d+/, '=s800')
-                : 'https://placehold.co/800x533/1e293b/475569?text=No+Image';
+        grid.innerHTML = realPhotos.map((photo, idx) => {
+            const thumb = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/,'=s800') : 'https://placehold.co/800x533/1e293b/475569?text=No+Image';
             return `
-                <div class="relative photo-card rounded-xl overflow-hidden aspect-[3/2] bg-slate-800 shadow-md"
-                     id="photo-${photo.id}"
-                     onclick="togglePhoto('${photo.id}', '${escapeAttr(photo.name)}', '${escapeAttr(thumb)}')">
-                    <img src="${thumb}"
-                         class="w-full h-full object-cover"
-                         loading="lazy"
-                         onerror="this.src='https://placehold.co/800x533/1e293b/475569?text=Error'">
+                <div class="relative photo-card rounded-xl overflow-hidden aspect-[3/2] bg-slate-800 shadow-md" id="photo-${photo.id}">
+                    <img src="${thumb}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/800x533/1e293b/475569?text=Error'">
+                    <div class="overlay-actions absolute inset-0 bg-black/50 flex items-center justify-center gap-2">
+                        <button onclick="openLightbox(${idx})" class="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg text-xs font-semibold border border-white/20 transition-all flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Lihat
+                        </button>
+                        <button onclick="togglePhoto('${photo.id}','${escapeAttr(photo.name)}','${escapeAttr(thumb)}')" class="px-3 py-1.5 bg-emerald-500/80 hover:bg-emerald-500 backdrop-blur-sm text-white rounded-lg text-xs font-semibold border border-emerald-400/30 transition-all flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Pilih
+                        </button>
+                    </div>
                     <div class="selected-badge absolute top-2.5 right-2.5 bg-emerald-500 text-white w-7 h-7 rounded-full items-center justify-center font-bold shadow-lg z-10 ring-4 ring-emerald-500/30 text-sm">✓</div>
-                    <div class="absolute bottom-0 left-0 w-full p-2.5 bg-gradient-to-t from-slate-900/90 to-transparent">
+                    <div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none">
                         <p class="text-slate-300 text-xs font-mono truncate">${photo.name}</p>
                     </div>
-                </div>
-            `;
+                </div>`;
         }).join('');
     }
 
-    function escapeAttr(str) {
-        return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
-
-    // TOGGLE PILIH FOTO
     function togglePhoto(id, fileName, imgUrl) {
         const el = document.getElementById(`photo-${id}`);
-        const index = selectedPhotos.findIndex(p => p.id === id);
-
-        if (index > -1) {
-            selectedPhotos.splice(index, 1);
+        const idx = selectedPhotos.findIndex(p => p.id === id);
+        if (idx > -1) {
+            selectedPhotos.splice(idx, 1);
             el.classList.remove('selected');
+            showToast('Foto dihapus dari pilihan');
         } else {
             if (selectedPhotos.length >= activeProject.maxPhotos) {
-                alert(`Batas maksimal ${activeProject.maxPhotos} foto tercapai!`);
-                return;
+                showToast(`⚠️ Batas ${activeProject.maxPhotos} foto tercapai!`, 'warn'); return;
             }
             selectedPhotos.push({ id, fileName, imgUrl });
             el.classList.add('selected');
+            showToast(`✓ Foto dipilih (${selectedPhotos.length}/${activeProject.maxPhotos})`);
         }
+        saveSelection();
         updateCounter();
         renderCartList();
+        updateLightboxSelectBtn();
     }
 
     function updateCounter() {
         const el = document.getElementById('counterUI');
-        const cartCount = document.getElementById('cartCount');
+        document.getElementById('cartCount').textContent = selectedPhotos.length;
         el.textContent = `${selectedPhotos.length} / ${activeProject.maxPhotos}`;
-        cartCount.textContent = selectedPhotos.length;
         el.className = selectedPhotos.length === activeProject.maxPhotos
             ? 'px-4 py-2 bg-emerald-500 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3'
             : 'px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm transition-all duration-300 shrink-0 ml-3';
@@ -223,41 +287,98 @@
     function openCart() { document.getElementById('cartModal').classList.remove('hidden'); }
     function closeCart() { document.getElementById('cartModal').classList.add('hidden'); }
 
-    // RENDER CART
     function renderCartList() {
         const list = document.getElementById('cartList');
-        if (selectedPhotos.length === 0) {
-            list.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">Belum ada foto yang dipilih.</div>`;
-            return;
+        if (!selectedPhotos.length) {
+            list.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">Belum ada foto yang dipilih.</div>`; return;
         }
         list.innerHTML = selectedPhotos.map(p => `
             <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 p-3 rounded-xl">
-                <img src="${p.imgUrl}" class="w-20 h-14 object-cover rounded-lg shrink-0" loading="lazy">
-                <div class="flex-1 min-w-0">
-                    <p class="text-white font-mono text-xs truncate">${p.fileName}</p>
-                </div>
-                <button onclick="togglePhoto('${p.id}', '${escapeAttr(p.fileName)}', '${escapeAttr(p.imgUrl)}')"
-                    class="text-red-400 hover:text-red-500 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs font-bold transition-colors shrink-0">
-                    Hapus
-                </button>
-            </div>
-        `).join('');
+                <img src="${p.imgUrl}" class="w-20 h-14 object-cover rounded-lg shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLightboxById('${p.id}')" loading="lazy">
+                <div class="flex-1 min-w-0"><p class="text-white font-mono text-xs truncate">${p.fileName}</p></div>
+                <button onclick="togglePhoto('${p.id}','${escapeAttr(p.fileName)}','${escapeAttr(p.imgUrl)}')" class="text-red-400 hover:text-red-500 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs font-bold transition-colors shrink-0">Hapus</button>
+            </div>`).join('');
     }
 
-    // KIRIM KE WHATSAPP
-    function submitSelection() {
-        if (selectedPhotos.length === 0) {
-            alert('Anda belum memilih foto.');
-            return;
+    // LIGHTBOX
+    function openLightbox(index) {
+        currentLightboxIndex = index;
+        renderLightbox();
+        document.getElementById('lightbox').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', handleLightboxKey);
+    }
+
+    function openLightboxById(id) {
+        const idx = realPhotos.findIndex(p => p.id === id);
+        if (idx > -1) openLightbox(idx);
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleLightboxKey);
+    }
+
+    function handleLightboxKey(e) {
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+        else if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        else if (e.key === 'Escape') closeLightbox();
+        else if (e.key === ' ') { e.preventDefault(); toggleFromLightbox(); }
+    }
+
+    function navigateLightbox(dir) {
+        currentLightboxIndex = (currentLightboxIndex + dir + realPhotos.length) % realPhotos.length;
+        renderLightbox();
+    }
+
+    function renderLightbox() {
+        const photo = realPhotos[currentLightboxIndex];
+        const hd = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/, '=s1600') : '';
+        document.getElementById('lightboxImg').src = hd;
+        document.getElementById('lightboxImg').alt = photo.name;
+        document.getElementById('lightboxName').textContent = photo.name;
+        document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${realPhotos.length}`;
+        updateLightboxSelectBtn();
+    }
+
+    function updateLightboxSelectBtn() {
+        const btn = document.getElementById('lightboxSelectBtn');
+        if (!btn || !realPhotos[currentLightboxIndex]) return;
+        const isSelected = selectedPhotos.some(p => p.id === realPhotos[currentLightboxIndex].id);
+        if (isSelected) {
+            btn.textContent = '✓ Terpilih — Batalkan';
+            btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-emerald-500 text-white hover:bg-red-500';
+        } else {
+            btn.textContent = '+ Pilih Foto';
+            btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-slate-700 text-white hover:bg-emerald-500';
         }
+    }
 
+    function toggleFromLightbox() {
+        const photo = realPhotos[currentLightboxIndex];
+        const thumb = photo.thumbnailLink ? photo.thumbnailLink.replace(/=s\d+/, '=s800') : '';
+        togglePhoto(photo.id, photo.name, thumb);
+    }
+
+    function submitSelection() {
+        if (!selectedPhotos.length) { showToast('⚠️ Pilih foto terlebih dahulu!', 'warn'); return; }
         const sorted = [...selectedPhotos].sort((a, b) => a.fileName.localeCompare(b.fileName));
-        const fileNames = sorted.map(p => `- ${p.fileName}`).join('\n');
-        const message = `Halo *Dhi Memories*,\n\nSaya dari proyek: *${activeProject.name}*\nBerikut adalah *${sorted.length} foto* pilihan saya:\n\n${fileNames}\n\nTerima kasih! 🙏`;
+        const msg = `Halo *Dhi Memories*,\n\nSaya dari proyek: *${activeProject.name}*\nBerikut adalah *${sorted.length} foto* pilihan saya:\n\n${sorted.map(p=>`- ${p.fileName}`).join('\n')}\n\nTerima kasih! 🙏`;
+        const wa = activeProject.waNumber || '62881027153295';
+        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+        clearSavedSelection();
+    }
 
-        // ✅ FIX: Nomor WA diambil dari database, bukan hardcoded
-        const waNumber = activeProject.waNumber || '62881027153295';
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    let toastTimeout;
+    function showToast(msg, type = 'success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.style.background = type === 'warn' ? '#f59e0b' : '#334155';
+        el.style.border = type === 'warn' ? '1px solid #d97706' : '1px solid #475569';
+        el.classList.add('toast-show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => el.classList.remove('toast-show'), 2200);
     }
 </script>
 </body>
