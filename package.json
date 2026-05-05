@@ -2,11 +2,10 @@
   "name": "dhi-api",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "start": "node server.js",
-  "postinstall": "prisma generate"
-},
+  "scripts": {
+    "start": "node server.js",
+    "build": "npx prisma generate"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
