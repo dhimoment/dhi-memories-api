@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Klien - Dhi Memories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { brand: { primary: '#3b82f6', dark: '#0f172a' } } } } }
+    </script>
+    <style>
+        .photo-card { transition: all 0.2s ease-in-out; border: 3px solid transparent; cursor: pointer; }
+        .photo-card:hover { border-color: #475569; transform: translateY(-2px); }
+        .photo-card.selected { border-color: #10b981; transform: scale(0.95); }
+        .selected-badge { display: none; }
+        .photo-card.selected .selected-badge { display: flex; }
+        
+        /* Animasi Modal Keranjang */
+        #cartModal { transition: opacity 0.3s ease; }
+        #cartModal.hidden { opacity: 0; pointer-events: none; }
+        #cartModal:not(.hidden) { opacity: 1; pointer-events: auto; }
+        #cartContent { transition: transform 0.3s ease; }
+        #cartModal.hidden #cartContent { transform: translateY(100%); }
+        #cartModal:not(.hidden) #cartContent { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-300 font-sans min-h-screen selection:bg-brand-primary selection:text-white">
+
+    <div id="pinSection" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center">
+            <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">Galeri <span class="text-brand-primary">Privat</span></h2>
+            <p class="text-slate-400 mb-8 text-sm">Masukkan PIN dari fotografer Anda</p>
+            <form id="pinForm" class="space-y-5">
+                <input type="text" id="clientPin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white text-center text-3xl font-mono tracking-[0.5em] focus:ring-2 focus:ring-brand-primary focus:outline-none transition-all" placeholder="------" required autocomplete="off">
+                <button type="submit" id="submitBtn" class="w-full bg-brand-primary hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-500/25">Buka Galeri</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="gallerySection" style="display: none;" class="p-4 md:p-6 pb-40">
+        <div class="max-w-7xl mx-auto sticky top-4 z-40 bg-slate-900/90 backdrop-blur-md border border-slate-800 p-4 md:px-6 rounded-2xl shadow-2xl flex justify-between items-center mb-6">
+            <h1 class="text-lg md:text-xl font-bold text-white truncate w-1/2" id="projectNameUI">Memuat...</h1>
+            <div class="text-right">
+                <span id="counterUI" class="px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm shadow-inner transition-colors duration-300">0 / 0</span>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-center py-3 rounded-xl mb-8 text-sm font-medium" id="instructionUI">
+            Menghubungkan...
+        </div>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="photoGrid"></div>
+
+        <div class="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-5 z-40 flex justify-center gap-4">
+            <button onclick="openCart()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                Review Pilihan
+            </button>
+            <button onclick="submitSelection()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                Kirim ke WA
+            </button>
+        </div>
+    </div>
+
+    <div id="cartModal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
+        <div id="cartContent" class="bg-slate-900 w-full max-w-4xl h-[80vh] rounded-t-3xl border-t border-slate-700 shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Foto Pilihan Anda</h3>
+                    <p class="text-sm text-slate-400">Review kembali sebelum dikirim</p>
+                </div>
+                <button onclick="closeCart()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-300 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1 bg-slate-950">
+                <div id="cartList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const API_URL = 'https://dhi-memories-api.vercel.app/api';
+        let activeProject = null;
+        let realPhotos = []; 
+        let selectedPhotos = []; 
+
+        document.getElementById('pinForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const pin = document.getElementById('clientPin').value;
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = 'Memeriksa...'; btn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/projects/${pin}/photos`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    activeProject = data.project;
+                    realPhotos = data.photos.sort((a, b) => a.name.localeCompare(b.name));
+                    document.getElementById('pinSection').style.display = 'none';
+                    document.getElementById('gallerySection').style.display = 'block';
+                    document.getElementById('projectNameUI').innerText = activeProject.name;
+                    document.getElementById('counterUI').innerText = `0 / ${activeProject.maxPhotos}`;
+                    document.getElementById('instructionUI').innerText = `Ditemukan ${realPhotos.length} foto. Pilih maksimal ${activeProject.maxPhotos} foto terbaik Anda.`;
+                    
+                    renderPhotos();
+                } else {
+                    alert(data.error);
+                    btn.innerHTML = 'Buka Galeri'; btn.disabled = false;
+                }
+            } catch (error) {
+                alert("Gagal terhubung ke server.");
+                btn.innerHTML = 'Buka Galeri'; btn.disabled = false;
+            }
+        });
+
+        function renderPhotos() {
+            const grid = document.getElementById('photoGrid');
+            grid.innerHTML = realPhotos.map(photo => {
+                const hdImage = photo.thumbnailLink ? photo.thumbnailLink.replace('=s220', '=s800') : '';
+                return `
+                    <div class="relative photo-card rounded-xl overflow-hidden aspect-[3/2] bg-slate-800 shadow-md" id="photo-${photo.id}" onclick="togglePhoto('${photo.id}', '${photo.name}', '${hdImage}')">
+                        <img src="${hdImage}" class="w-full h-full object-cover" loading="lazy">
+                        <div class="selected-badge absolute top-3 right-3 bg-emerald-500 text-white w-8 h-8 rounded-full items-center justify-center font-bold shadow-lg z-10 ring-4 ring-emerald-500/30">✓</div>
+                        <div class="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-slate-900 to-transparent">
+                            <p class="text-slate-200 text-xs font-mono truncate">${photo.name}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- FUNGSI CRUD KERANJANG PILIHAN ---
+
+        function togglePhoto(id, fileName, imgUrl) {
+            const el = document.getElementById(`photo-${id}`);
+            const index = selectedPhotos.findIndex(p => p.id === id);
+
+            if (index > -1) {
+                selectedPhotos.splice(index, 1);
+                el.classList.remove('selected');
+            } else {
+                if (selectedPhotos.length >= activeProject.maxPhotos) {
+                    alert(`Batas maksimal ${activeProject.maxPhotos} foto tercapai!`);
+                    return;
+                }
+                selectedPhotos.push({ id, fileName, imgUrl });
+                el.classList.add('selected');
+            }
+            updateCounter();
+            renderCartList(); // Update modal keranjang secara realtime
+        }
+
+        function updateCounter() {
+            const counterUI = document.getElementById('counterUI');
+            counterUI.innerText = `${selectedPhotos.length} / ${activeProject.maxPhotos}`;
+            counterUI.className = selectedPhotos.length === activeProject.maxPhotos 
+                ? "px-4 py-2 bg-emerald-500 text-white rounded-lg font-bold text-sm" 
+                : "px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-lg font-bold text-sm";
+        }
+
+        function openCart() {
+            document.getElementById('cartModal').classList.remove('hidden');
+            renderCartList();
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        // READ & DELETE: Menampilkan daftar yang di-CRUD klien
+        function renderCartList() {
+            const list = document.getElementById('cartList');
+            if (selectedPhotos.length === 0) {
+                list.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">Belum ada foto yang dipilih.</div>`;
+                return;
+            }
+
+            list.innerHTML = selectedPhotos.map(p => `
+                <div class="flex items-center gap-4 bg-slate-900 border border-slate-800 p-3 rounded-xl">
+                    <img src="${p.imgUrl}" class="w-20 h-14 object-cover rounded-lg">
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-white font-mono text-sm truncate">${p.fileName}</p>
+                    </div>
+                    <button onclick="togglePhoto('${p.id}', '${p.fileName}', '${p.imgUrl}')" class="text-red-400 hover:text-red-500 px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-sm font-bold transition-colors">
+                        Hapus
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function submitSelection() {
+            if (selectedPhotos.length === 0) {
+                alert("Anda belum memilih foto satupun.");
+                return;
+            }
+            const sorted = [...selectedPhotos].sort((a, b) => a.fileName.localeCompare(b.fileName));
+            const fileNames = sorted.map(p => `- ${p.fileName}`).join('\n');
+            const message = `Halo *Dhi Memories*,\n\nSaya dari proyek: *${activeProject.name}*\nBerikut adalah ${sorted.length} foto pilihan saya:\n\n${fileNames}\n\nTerima kasih!`;
+            
+            window.open(`https://wa.me/62881027153295?text=${encodeURIComponent(message)}`, '_blank');
+        }
+    </script>
+</body>
+</html>

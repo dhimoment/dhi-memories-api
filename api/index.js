@@ -2,12 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const { google } = require('googleapis');
+const path = require('path');
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'DELETE'] }));
 app.use(express.json());
+
+// ✅ Serve file HTML dari folder public/
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Google Drive auth via Environment Variables
 const auth = new google.auth.GoogleAuth({
@@ -21,9 +25,9 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: 'v3', auth });
 
-// Root health check
+// Root → kirim index.html
 app.get('/', (req, res) => {
-    res.json({ status: 'ok', message: 'Dhi Memories API is running 🟢' });
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // GET semua proyek

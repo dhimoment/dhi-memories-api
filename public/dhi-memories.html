@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhi Memories - Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; font-family: system-ui, -apple-system, sans-serif; }
+        .text-brand { color: #3b82f6 !important; }
+        .bg-brand { background-color: #3b82f6 !important; }
+        .btn-brand { background-color: #3b82f6; color: white; border: none; }
+        .btn-brand:hover { background-color: #2563eb; color: white; }
+        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid #334155; }
+        .photo-card { cursor: pointer; transition: transform 0.2s; border: 3px solid transparent; }
+        .photo-card:hover { border-color: #475569; }
+        .photo-card.selected { border-color: #10b981; transform: scale(0.95); }
+        .selected-badge { display: none; position: absolute; top: 10px; right: 10px; background: #10b981; color: white; border-radius: 50%; width: 30px; height: 30px; text-align: center; line-height: 30px; font-weight: bold; }
+        .photo-card.selected .selected-badge { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5" id="app-container">
+        </div>
+
+<script>
+/**
+ * ARSITEKTUR JAVASCRIPT VANILLA (Tanpa Framework)
+ * Konsep: Single Page Application (SPA) manual menggunakan DOM Manipulation.
+ */
+
+// --- 1. DATABASE LOKAL (MOCK) ---
+// Kita gunakan localStorage browser agar data tidak hilang saat direfresh
+let projects = JSON.parse(localStorage.getItem('dhi_projects')) || [];
+
+function saveDatabase() {
+    localStorage.setItem('dhi_projects', JSON.stringify(projects));
+}
+
+// --- 2. STATE MANAGEMENT ---
+let currentView = 'login'; // 'login', 'admin', 'client'
+let activeProject = null;
+let selectedPhotos = [];
+
+const app = document.getElementById('app-container');
+
+// --- 3. MESIN RENDER ANTARMUKA ---
+function render() {
+    if (currentView === 'login') renderLogin();
+    else if (currentView === 'admin') renderAdmin();
+    else if (currentView === 'client') renderClientGallery();
+}
+
+// --- VIEW: HALAMAN LOGIN ---
+function renderLogin() {
+    app.innerHTML = `
+        <div class="row justify-content-center align-items-center min-vh-100 mt-[-50px]">
+            <div class="col-12 col-md-5">
+                <div class="card glass-panel text-center p-5 shadow-lg rounded-4">
+                    <h1 class="fw-bold mb-1">Dhi <span class="text-brand">Memories</span></h1>
+                    <p class="text-secondary mb-4">Masuk sebagai Admin atau Klien</p>
+                    
+                    <div class="alert alert-info py-2 text-start" style="font-size: 0.85rem;">
+                        <strong>Info Login:</strong><br>
+                        Admin: User: <code>admin</code> | Pass: <code>admin</code><br>
+                        Klien: Gunakan PIN rahasia dari Admin.
+                    </div>
+
+                    <form id="loginForm">
+                        <input type="text" id="username" class="form-control form-control-lg bg-dark text-white border-secondary mb-3" placeholder="Username / PIN Proyek" required>
+                        <input type="password" id="password" class="form-control form-control-lg bg-dark text-white border-secondary mb-3" placeholder="Password (Kosongkan jika Klien)">
+                        <button type="submit" class="btn btn-brand btn-lg w-100 fw-bold rounded-3">Masuk Sistem</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        // Logika Admin
+        if (user === 'admin' && pass === 'admin') {
+            currentView = 'admin';
+            render();
+            return;
+        }
+
+        // Logika Klien (Mencari proyek berdasarkan PIN)
+        const foundProject = projects.find(p => p.pin === user);
+        if (foundProject) {
+            activeProject = foundProject;
+            selectedPhotos = [];
+            currentView = 'client';
+            render();
+        } else {
+            alert("Kredensial salah atau PIN tidak ditemukan!");
+        }
+    });
+}
+
+// --- VIEW: DASHBOARD ADMIN ---
+function renderAdmin() {
+    app.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-4 p-4 glass-panel rounded-4">
+            <div>
+                <h2 class="fw-bold mb-0">Dhi Memories <span class="text-brand">Admin</span></h2>
+                <small class="text-secondary">Pusat kendali galeri</small>
+            </div>
+            <button class="btn btn-outline-danger" onclick="logout()">Keluar</button>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-lg-4">
+                <div class="glass-panel p-4 rounded-4 h-100">
+                    <h5 class="fw-bold mb-4">Buat Proyek Baru</h5>
+                    <form id="projectForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">Nama Klien / Acara</label>
+                            <input type="text" id="pName" class="form-control bg-dark border-secondary text-white" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">PIN Akses Klien</label>
+                            <input type="text" id="pPin" class="form-control bg-dark border-secondary text-white" placeholder="misal: 123456" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-secondary small">Maksimal Foto Dipilih</label>
+                            <input type="number" id="pMax" class="form-control bg-dark border-secondary text-white" value="20" required>
+                        </div>
+                        <button type="submit" class="btn btn-brand w-100 fw-bold">Simpan Proyek</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <div class="glass-panel p-4 rounded-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Proyek Aktif</h5>
+                        <button class="btn btn-sm btn-outline-danger" onclick="clearDatabase()">Hapus Semua Data</button>
+                    </div>
+                    <div id="projectList" class="row g-3"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    renderProjectList();
+
+    document.getElementById('projectForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newProject = {
+            id: Date.now().toString(),
+            name: document.getElementById('pName').value,
+            pin: document.getElementById('pPin').value,
+            maxPhotos: parseInt(document.getElementById('pMax').value)
+        };
+        projects.push(newProject);
+        saveDatabase();
+        document.getElementById('projectForm').reset();
+        renderProjectList();
+    });
+}
+
+function renderProjectList() {
+    const list = document.getElementById('projectList');
+    if (projects.length === 0) {
+        list.innerHTML = `<div class="col-12 text-center py-5 text-secondary border border-secondary rounded border-dashed">Belum ada proyek.</div>`;
+        return;
+    }
+
+    list.innerHTML = projects.map(p => `
+        <div class="col-12">
+            <div class="card bg-dark border-secondary p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1">${p.name}</h5>
+                        <span class="badge bg-success">PIN: ${p.pin}</span>
+                        <span class="badge bg-secondary ms-2">Kuota: ${p.maxPhotos} Foto</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProject('${p.id}')">Hapus</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function deleteProject(id) {
+    if(confirm("Yakin hapus proyek ini?")) {
+        projects = projects.filter(p => p.id !== id);
+        saveDatabase();
+        renderProjectList();
+    }
+}
+
+function clearDatabase() {
+    if(confirm("Ini akan menghapus seluruh database lokal. Lanjutkan?")) {
+        projects = [];
+        saveDatabase();
+        renderProjectList();
+    }
+}
+
+// --- VIEW: GALERI KLIEN ---
+function renderClientGallery() {
+    // Generate foto dummy beresolusi tinggi untuk demo
+    let dummyPhotos = '';
+    for(let i = 1; i <= 30; i++) {
+        dummyPhotos += `
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="position-relative photo-card rounded overflow-hidden" id="photo-${i}" onclick="togglePhoto(${i})">
+                    <img src="https://picsum.photos/seed/dhi${i}/600/400" class="img-fluid w-100" style="aspect-ratio: 3/2; object-fit: cover;" alt="Foto ${i}">
+                    <div class="selected-badge">✓</div>
+                    <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                        <small class="text-white font-monospace">IMG_${1000+i}.JPG</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    app.innerHTML = `
+        <div class="sticky-top glass-panel rounded-4 p-3 mb-4 d-flex justify-content-between align-items-center shadow-lg">
+            <button class="btn btn-sm btn-outline-light" onclick="logout()">Kembali</button>
+            <h5 class="fw-bold mb-0 text-truncate text-center w-50">${activeProject.name}</h5>
+            <div class="text-end w-25">
+                <span class="badge ${selectedPhotos.length === activeProject.maxPhotos ? 'bg-success' : 'bg-brand'} fs-6" id="counterUI">
+                    ${selectedPhotos.length} / ${activeProject.maxPhotos}
+                </span>
+            </div>
+        </div>
+
+        <div class="alert alert-secondary border-secondary bg-dark text-center mb-4">
+            Silakan klik pada foto untuk memilih. Maksimal ${activeProject.maxPhotos} foto.
+        </div>
+
+        <div class="row g-3 pb-5">
+            ${dummyPhotos}
+        </div>
+
+        <div class="fixed-bottom p-3 text-center" style="background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;">
+            <button class="btn btn-brand btn-lg fw-bold px-5 rounded-pill shadow-lg" onclick="submitSelection()">
+                Kirim Pilihan Foto
+            </button>
+        </div>
+    `;
+}
+
+function togglePhoto(id) {
+    const el = document.getElementById(`photo-${id}`);
+    const index = selectedPhotos.indexOf(id);
+
+    if (index > -1) {
+        // Hapus pilihan
+        selectedPhotos.splice(index, 1);
+        el.classList.remove('selected');
+    } else {
+        // Tambah pilihan (cek kuota)
+        if (selectedPhotos.length >= activeProject.maxPhotos) {
+            alert(`Anda sudah mencapai batas maksimal ${activeProject.maxPhotos} foto!`);
+            return;
+        }
+        selectedPhotos.push(id);
+        el.classList.add('selected');
+    }
+    
+    // Update UI Counter
+    const counterUI = document.getElementById('counterUI');
+    counterUI.innerText = `${selectedPhotos.length} / ${activeProject.maxPhotos}`;
+    if (selectedPhotos.length === activeProject.maxPhotos) {
+        counterUI.className = "badge bg-success fs-6";
+    } else {
+        counterUI.className = "badge bg-brand fs-6";
+    }
+}
+
+function submitSelection() {
+    if (selectedPhotos.length === 0) {
+        alert("Anda belum memilih foto satupun!");
+        return;
+    }
+    // Konversi array ID menjadi format teks yang rapi untuk dikirim via WA
+    const fileNames = selectedPhotos.map(id => `IMG_${1000+id}.JPG`).join('\\n');
+    const waText = encodeURIComponent(`Halo Admin Dhi Memories,\\nSaya dari proyek *${activeProject.name}*.\\n\\nBerikut adalah ${selectedPhotos.length} foto pilihan saya:\\n${fileNames}\\n\\nTerima kasih!`);
+    
+    // Buka WhatsApp Admin (Ubah nomor sesuai nomor Anda)
+    window.open(`https://wa.me/6281234567890?text=${waText}`, '_blank');
+}
+
+// --- UTILITAS ---
+function logout() {
+    currentView = 'login';
+    activeProject = null;
+    selectedPhotos = [];
+    render();
+}
+
+// MULAI APLIKASI
+render();
+
+</script>
+</body>
+</html>
