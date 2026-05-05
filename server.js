@@ -47,8 +47,13 @@ function extractFolderId(link) {
 // ==========================================
 // ROUTE FRONTEND (Menampilkan Halaman Web)
 // ==========================================
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'client.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+// Menjadi lebih kuat seperti ini:
+app.get('/', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'client.html'));
+});
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'admin.html'));
+});
 
 // ==========================================
 // ROUTE API BACKEND (Logika Bisnis)

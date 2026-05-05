@@ -4,15 +4,12 @@
     {
       "src": "server.js",
       "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["*.html"]
-      }
+      "config": { "includeFiles": ["*.html"] }
     }
   ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/server.js"
-    }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server.js" },
+    { "src": "/admin", "dest": "/server.js" },
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
