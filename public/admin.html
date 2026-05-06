@@ -187,8 +187,7 @@
         .panel-body { padding: 1.5rem; }
 
         /* FORM */
-        .form-label { display: block; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.4rem; margin-top: 1rem; }
-        .form-label:first-child { margin-top: 0; }
+        .form-label { display: block; font-size: 0.68rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.45rem; }
         .form-field {
             width: 100%;
             background: var(--bg);
@@ -200,20 +199,20 @@
             font-size: 0.85rem;
             outline: none;
             transition: border-color 0.25s;
+            margin-bottom: 1rem;
         }
         .form-field:focus { border-color: var(--gold-dim); }
-        .form-field::placeholder { color: var(--muted); font-size: 0.8rem; }
+        .form-field::placeholder { color: var(--border); }
 
         .btn-save {
             width: 100%;
-            margin-top: 1.5rem;
             padding: 0.8rem;
             background: transparent;
             border: 1px solid var(--gold-dim);
             border-radius: 3px;
             color: var(--gold-light);
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 500;
             letter-spacing: 0.2em;
             text-transform: uppercase;
@@ -224,58 +223,101 @@
         .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* PROJECT LIST */
+        .project-count { font-size: 0.68rem; letter-spacing: 0.15em; color: var(--muted); background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 2px; border: 1px solid var(--border); }
+
         .project-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1.1rem 1.25rem;
             display: flex;
             align-items: flex-start;
+            justify-content: space-between;
             gap: 1rem;
-            padding: 1.25rem 0;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.6rem;
+            transition: border-color 0.2s;
         }
-        .project-card:last-child { border-bottom: none; }
-        .project-name { font-size: 0.95rem; font-weight: 400; margin-bottom: 0.3rem; }
-        .project-link { font-size: 0.72rem; color: var(--gold-dim); text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; margin-bottom: 0.5rem; }
-        .project-link:hover { color: var(--gold); }
-        .project-meta { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .meta-item { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; }
-        .meta-pin { color: var(--gold); font-weight: 500; letter-spacing: 0.15em; }
-        .meta-val { color: var(--text); }
-        .project-actions { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
-        .btn-copy, .btn-del {
-            padding: 0.35rem 0.75rem;
-            border-radius: 3px;
-            font-family: 'DM Sans', sans-serif;
+        .project-card:hover { border-color: rgba(201,169,110,0.2); }
+        .project-card:last-child { margin-bottom: 0; }
+
+        .project-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--text); font-weight: 400; margin-bottom: 0.3rem; }
+        .project-link { font-size: 0.7rem; color: var(--gold-dim); text-decoration: none; letter-spacing: 0.03em; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+        .project-link:hover { color: var(--gold); text-decoration: underline; }
+        .project-meta { display: flex; gap: 1.25rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .meta-item { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.35rem; }
+        .meta-val { color: var(--gold-light); font-weight: 500; }
+        .meta-pin { font-family: 'DM Sans', sans-serif; color: var(--gold); font-weight: 500; letter-spacing: 0.15em; }
+
+        .project-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: flex-start; }
+        .btn-copy {
+            padding: 0.3rem 0.7rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--muted);
             font-size: 0.68rem;
             letter-spacing: 0.1em;
-            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-copy:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+        .btn-del {
+            padding: 0.3rem 0.7rem;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.15);
+            border-radius: 2px;
+            color: rgba(248,113,113,0.6);
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .btn-copy { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-        .btn-copy:hover { border-color: var(--gold-dim); color: var(--gold); }
-        .btn-del { background: transparent; border: 1px solid rgba(248,113,113,0.15); color: rgba(248,113,113,0.5); }
-        .btn-del:hover { border-color: rgba(248,113,113,0.4); color: var(--red); background: rgba(248,113,113,0.05); }
+        .btn-del:hover { border-color: var(--red); color: var(--red); }
 
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.82rem; }
-        .empty-line { display: block; width: 30px; height: 1px; background: var(--border); margin: 0 auto 1rem; }
-
-        .project-count { font-size: 0.68rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            border: 1px dashed var(--border);
+            border-radius: 3px;
+        }
+        .empty-line { display: block; width: 40px; height: 1px; background: var(--gold-dim); margin: 0.75rem auto 0.75rem; opacity: 0.4; }
 
         /* TOAST */
         #toast {
-            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); font-size: 0.8rem; padding: 0.7rem 1.5rem;
-            border-radius: 3px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 100;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translate(-50%, 12px);
+            z-index: 70;
+            padding: 0.6rem 1.25rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            color: var(--text);
             white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.show { opacity: 1; transform: translate(-50%, 0); }
         #toast.gold { border-color: var(--gold-dim); color: var(--gold-light); }
 
-        @keyframes revealUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes revealUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <section id="loginSection">
     <div class="bg-orb orb-1"></div>
     <div class="login-card">
@@ -350,27 +392,7 @@
 
 <script>
 const API_URL = '/api';
-
-// ── Token disimpan di sessionStorage (hilang saat browser ditutup) ──
-function getToken() { return sessionStorage.getItem('dhi_admin_token'); }
-function setToken(t) { sessionStorage.setItem('dhi_admin_token', t); }
-function clearToken() { sessionStorage.removeItem('dhi_admin_token'); }
-
-function authHeaders() {
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-    };
-}
-
-// Kalau token sudah ada (refresh halaman), langsung masuk dashboard
-window.addEventListener('DOMContentLoaded', () => {
-    if (getToken()) {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('dashboardSection').style.display = 'block';
-        fetchProjects();
-    }
-});
+let projects = [];
 
 /* LOGIN */
 document.getElementById('loginForm').addEventListener('submit', async e => {
@@ -381,50 +403,34 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     try {
         const res = await fetch(`${API_URL}/login`, {
             method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            })
+            body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value })
         });
-        const data = await res.json();
-        if (res.ok && data.token) {
-            setToken(data.token);
+        if (res.ok) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'block';
             fetchProjects();
         } else {
-            err.textContent = data.error || 'Username atau password salah.';
-            err.style.display = 'block';
+            err.textContent = 'Username atau password salah.'; err.style.display = 'block';
             btn.textContent = 'Masuk'; btn.disabled = false;
         }
     } catch {
-        err.textContent = 'Gagal terhubung ke server.';
-        err.style.display = 'block';
+        err.textContent = 'Gagal terhubung ke server.'; err.style.display = 'block';
         btn.textContent = 'Masuk'; btn.disabled = false;
     }
 });
 
 function logout() {
-    clearToken();
     document.getElementById('dashboardSection').style.display = 'none';
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('loginForm').reset();
 }
 
-// Handle sesi expired
-function handleUnauth() {
-    clearToken();
-    showToast('Sesi habis, silakan login ulang.');
-    setTimeout(() => logout(), 1500);
-}
-
 /* FETCH */
 async function fetchProjects() {
     try {
-        const res = await fetch(`${API_URL}/projects`, { headers: authHeaders() });
-        if (res.status === 401 || res.status === 403) { handleUnauth(); return; }
-        const projects = await res.json();
-        renderList(projects);
+        const res = await fetch(`${API_URL}/projects`);
+        projects = await res.json();
+        renderList();
     } catch(e) { console.error(e); }
 }
 
@@ -436,8 +442,7 @@ document.getElementById('projectForm').addEventListener('submit', async e => {
     btn.textContent = 'Menyimpan...'; btn.disabled = true; err.style.display = 'none';
     try {
         const res = await fetch(`${API_URL}/projects`, {
-            method: 'POST',
-            headers: authHeaders(),
+            method: 'POST', headers: {'Content-Type':'application/json'},
             body: JSON.stringify({
                 name: document.getElementById('pName').value,
                 driveLink: document.getElementById('pLink').value,
@@ -446,24 +451,14 @@ document.getElementById('projectForm').addEventListener('submit', async e => {
                 maxPhotos: document.getElementById('pMax').value
             })
         });
-        if (res.status === 401 || res.status === 403) { handleUnauth(); return; }
-        if (res.ok) {
-            document.getElementById('projectForm').reset();
-            fetchProjects();
-            showToast('Proyek berhasil disimpan', 'gold');
-        } else {
-            const d = await res.json();
-            err.textContent = d.error; err.style.display = 'block';
-        }
-    } catch {
-        err.textContent = 'Kesalahan jaringan.'; err.style.display = 'block';
-    } finally {
-        btn.textContent = 'Simpan Proyek'; btn.disabled = false;
-    }
+        if (res.ok) { document.getElementById('projectForm').reset(); fetchProjects(); showToast('Proyek berhasil disimpan', 'gold'); }
+        else { const d = await res.json(); err.textContent = d.error; err.style.display = 'block'; }
+    } catch { err.textContent = 'Kesalahan jaringan.'; err.style.display = 'block'; }
+    finally { btn.textContent = 'Simpan Proyek'; btn.disabled = false; }
 });
 
 /* RENDER LIST */
-function renderList(projects) {
+function renderList() {
     const el = document.getElementById('projectList');
     document.getElementById('projectCount').textContent = `${projects.length} proyek`;
     if (!projects.length) {
@@ -475,24 +470,27 @@ function renderList(projects) {
                 <div class="project-name">${p.name}</div>
                 <a href="${p.driveLink}" target="_blank" class="project-link">${p.driveLink}</a>
                 <div class="project-meta">
+                    <span class="meta-item">PIN <span class="meta-pin">${p.pin}</span></span>
                     <span class="meta-item">Kuota <span class="meta-val">${p.maxPhotos} foto</span></span>
                     <span class="meta-item">WA <span class="meta-val">${p.waNumber || '—'}</span></span>
                 </div>
             </div>
             <div class="project-actions">
+                <button class="btn-copy" onclick="copyPin('${p.pin}')">Salin PIN</button>
                 <button class="btn-del" onclick="deleteProject('${p.id}')">Hapus</button>
             </div>
         </div>`).join('');
 }
 
+function copyPin(pin) {
+    navigator.clipboard.writeText(pin);
+    showToast(`PIN "${pin}" disalin`, 'gold');
+}
+
 async function deleteProject(id) {
     if (!confirm('Yakin hapus proyek ini?')) return;
     try {
-        const res = await fetch(`${API_URL}/projects/${id}`, {
-            method: 'DELETE',
-            headers: authHeaders()
-        });
-        if (res.status === 401 || res.status === 403) { handleUnauth(); return; }
+        const res = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE' });
         if (res.ok) { fetchProjects(); showToast('Proyek dihapus'); }
     } catch { alert('Gagal menghapus.'); }
 }
