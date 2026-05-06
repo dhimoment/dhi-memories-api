@@ -80,7 +80,7 @@ app.get('/api/projects/:pin/photos', async (req, res) => {
 // POST login admin
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    if (username === 'admin' && password === 'admin') {
+    if (username === 'admin' && password === 'Zackteen712') {
         res.json({ success: true });
     } else {
         res.status(401).json({ error: 'Username atau password salah' });
